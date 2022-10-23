@@ -29,6 +29,7 @@ while True:
         file_urls = [URL]
         download_data_path = dl_manager.download_and_extract(file_urls)[0]
       zip_base_dir = download_data_path
+      print(zip_base_dir)
       download_data_path = []
       for ext in valid_file_ext:
         download_data_path += glob(f"{zip_base_dir}/**/**.{ext}", recursive = True)

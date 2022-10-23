@@ -17,12 +17,12 @@ def get_split_code(urls, files, zip_base_dir):
           if split in f.lower():
             result.append(f"datasets.SplitGenerator(name=datasets.Split.{MAIN_SPLITS[split]}"+", gen_kwargs={"+f"'filepaths': [os.path.join(downloaded_files[0],'{f}')]"+"})")
     if len(result) == 0:
-      result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': [os.path.join(downloaded_files[0],f) for f in os.listdir(downloaded_files[0])]})")
+      result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':"+f"[os.path.join(downloaded_files[0],f) for f in {files}]"+"})")
     
   else:
     for i, url in enumerate(urls):
       for split in MAIN_SPLITS:
-        if split in url.lower():
+        if split in url.split('/')[-1].lower():
           result.append(f"datasets.SplitGenerator(name=datasets.Split.{MAIN_SPLITS[split]}"+", gen_kwargs={"+f"'filepaths': [downloaded_files[{i}]]"+"})")
     if len(result) == 0:
       result.append(f"datasets.SplitGenerator(name=datasets.Split.TRAIN"+", gen_kwargs={'filepaths': downloaded_files})")
