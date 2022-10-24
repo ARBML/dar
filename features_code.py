@@ -1,8 +1,8 @@
-def get_features_code(columns, labels, set_label = False):
+def get_features_code(columns, label_names):
   
   features = ','.join([f"'{feature}':datasets.Value('string')" for feature in columns])
-  if set_label:
-    label = f",'label': datasets.features.ClassLabel(names={str(labels)})"
+  if label_names is not None:
+    label = f",'label': datasets.features.ClassLabel(names={str(label_names)})"
   else:
     label = ""
   func_name = 'def _info(self):\n'

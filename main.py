@@ -33,6 +33,10 @@ while True:
       download_data_path = []
       for ext in valid_file_ext:
         download_data_path += glob(f"{zip_base_dir}/**/**.{ext}", recursive = True)
+      print(download_data_path)
+      alt_glob = input('Enter different glob structure: ')
+      if len(alt_glob) > 0:
+        download_data_path = eval(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
     else:
       download_data_path = dl_manager.download(file_urls)
     print(download_data_path)
@@ -69,29 +73,25 @@ while True:
     df.columns= columns
     set_label = True
     # columns = input("Enter the column names: ").split(",")
-    while True:
-      label = input("Enter label: ")
-      if label == "":
-        set_label = False
-        break
-      else:
-        if label in columns:
-          break
-        else:
-          print("wrong label name")
-    if set_label:
-      label_names = list(set(df[label]))
+    label_column_name = input("Enter label column name: ")
+    label_names = input("Enter label names(s): ").split(",")
+
+    if label_names[0] == '':
+      label_names = None
+
+    if label_column_name != '':
+      label_names = list(set(df[label_column_name]))
       print(label_names)
-    else:
-      label_names = ""
+
     generate_code = ""
     if type == 'xml':
       generate_code = xml_code
-    generate_code += get_generate_code(type, columns, label, skip_rows, sep = best_sep, header = header)
+    
+    print(columns)
+    generate_code += get_generate_code(type, columns, label_names, label_column_name, skip_rows, sep = best_sep, header = header)
     print(generate_code)
-    if label in columns:
-      columns.remove(label)
-    features_code = get_features_code(columns, label_names, set_label = set_label)
+      
+    features_code = get_features_code(columns, label_names)
     print(features_code)
     extra_imports = []
     if type == 'xml':

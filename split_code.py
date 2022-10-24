@@ -11,14 +11,20 @@ def get_split_code(urls, files, zip_base_dir):
 
   result = []    
   if len(zip_base_dir) > 0:
+    split_files = {}
     files = [f.replace(zip_base_dir, "")[1:] for f in files] # only extract the directory to files, the base dir is random
     for i,f in enumerate(files):
       for split in MAIN_SPLITS:
           if split in f.lower():
-            result.append(f"datasets.SplitGenerator(name=datasets.Split.{MAIN_SPLITS[split]}"+", gen_kwargs={"+f"'filepaths': [os.path.join(downloaded_files[0],'{f}')]"+"})")
-    if len(result) == 0:
+            if MAIN_SPLITS[split] in split_files:
+              split_files[MAIN_SPLITS[split]]+=','+f
+            else:
+              split_files[MAIN_SPLITS[split]] =f
+    if len(split_files) == 0:
       result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':"+f"[os.path.join(downloaded_files[0],f) for f in {files}]"+"})")
-    
+    else:
+      for split in split_files:
+        result.append(f"datasets.SplitGenerator(name=datasets.Split.{split}"+", gen_kwargs={"+f"'filepaths': [os.path.join(downloaded_files[0],f) for f in {split_files[split].split(',')}]"+"})")
   else:
     for i, url in enumerate(urls):
       for split in MAIN_SPLITS:

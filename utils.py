@@ -7,19 +7,23 @@ import pandas as pd
 def convert_link(links):
   output = []
   for link in links.split(","):
-    if 'github.com' in link.lower():    
-      branch_name = 'master' if 'master' in link else 'main'
+    if 'github.com' in link.lower():
       user_name = link.split("/")[3]
       repo_name = link.split("/")[4]
-      
-      base_path = f"https://raw.githubusercontent.com/{user_name}/{repo_name}/{branch_name}/"
-      file_name = link.split(branch_name)[-1][1:]
-      fs = fsspec.filesystem("github", org=user_name, repo=repo_name)
-      
-      if fs.isdir(file_name):
-        output = output +  [base_path+f for f in fs.ls(f"{file_name}/")]
+      if link.count('/') > 4:    
+        branch_name = 'master' if 'master' in link else 'main'
+
+        
+        base_path = f"https://raw.githubusercontent.com/{user_name}/{repo_name}/{branch_name}/"
+        file_name = link.split(branch_name)[-1][1:]
+        fs = fsspec.filesystem("github", org=user_name, repo=repo_name)
+        
+        if fs.isdir(file_name):
+          output = output +  [base_path+f for f in fs.ls(f"{file_name}/")]
+        else:
+          output.append(base_path+file_name)
       else:
-        output.append(base_path+file_name)
+        output.append(f'https://github.com/{user_name}/{repo_name}/archive/master.zip')
     elif 'drive.google' in link.lower():
       base = "https://drive.google.com/file/d/"
       trail = "/view"
