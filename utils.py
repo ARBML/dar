@@ -83,3 +83,19 @@ def get_df(type, path, skiprows = 0, sep = ""):
     df = ET.tostring(root, encoding='unicode', method='xml')
     print(df[:500])
   return df, best_sep
+
+def get_split_user(split_files):
+    dif_splits = input('Enter different splits (y/n): ')
+    if dif_splits == 'y':
+        split_files = {}
+        train_files = input('Enter train split files as a list: ')
+        test_files = input('Enter test split files as a list: ')
+        dev_files = input('Enter dev split files as a list: ')
+
+        if train_files != '':
+            split_files['TRAIN'] = train_files
+        if test_files != '':
+            split_files['TEST'] = test_files
+        if dev_files != '':
+            split_files['VALIDATION'] = dev_files
+    return split_files

@@ -1,4 +1,5 @@
 from constants import *
+from utils import get_split_user 
 
 def get_split_code(urls, files, zip_base_dir):
   MAIN_SPLITS = {'train':'TRAIN', 'test':'TEST', 'valid':'VALIDATION', 'dev':'VALIDATION'}
@@ -20,11 +21,13 @@ def get_split_code(urls, files, zip_base_dir):
               split_files[MAIN_SPLITS[split]]+=','+f
             else:
               split_files[MAIN_SPLITS[split]] =f
+              
     if len(split_files) == 0:
-      result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':"+f"[os.path.join(downloaded_files[0],f) for f in {files}]"+"})")
-    else:
-      for split in split_files:
-        result.append(f"datasets.SplitGenerator(name=datasets.Split.{split}"+", gen_kwargs={"+f"'filepaths': [os.path.join(downloaded_files[0],f) for f in {split_files[split].split(',')}]"+"})")
+      split_files['TRAIN'] = ','.join(files)
+
+    split_files = get_split_user(split_files)
+    for split in split_files:
+      result.append(f"datasets.SplitGenerator(name=datasets.Split.{split}"+", gen_kwargs={"+f"'filepaths': [os.path.join(downloaded_files[0],f) for f in {split_files[split].split(',')}]"+"})")
   else:
     for i, url in enumerate(urls):
       for split in MAIN_SPLITS:

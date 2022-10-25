@@ -36,6 +36,7 @@ while True:
       print(download_data_path)
       alt_glob = input('Enter different glob structure: ')
       if len(alt_glob) > 0:
+        print(alt_glob)
         download_data_path = eval(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
     else:
       download_data_path = dl_manager.download(file_urls)
