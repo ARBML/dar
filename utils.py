@@ -66,11 +66,11 @@ def get_df(type, path, skiprows = 0, sep = ""):
     df = pd.read_json(path, lines=True)
   if type in ['csv', 'txt', 'tsv']:
     if len(sep) > 0:
-      df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+      df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False, engine = "python")
     else:
       for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
         try:
-          df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+          df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False, engine = "python")
           num_columns = len(list(df.columns))
           if best_columns < num_columns:
             best_sep = sep

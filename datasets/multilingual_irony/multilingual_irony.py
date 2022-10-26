@@ -16,6 +16,6 @@ class multilingual_irony(datasets.GeneratorBasedBuilder):
 			df = pd.read_csv(open(filepath, 'rb'), sep = ',', skiprows = 0, error_bad_lines = False, header = 0)
 			df.columns = ['tweet_id', 'label']
 			for _, record in df.iterrows():
-				yield str(_id), {'tweet_id':record['tweet_id'],'label':record['label'],'label':str(labels[i])}
+				yield str(_id), {'tweet_id':record['tweet_id'],'label':str(record['label'])}
 				_id += 1 
 

@@ -75,10 +75,12 @@ while True:
     set_label = True
     # columns = input("Enter the column names: ").split(",")
     label_column_name = input("Enter label column name: ")
-    label_names = input("Enter label names(s): ").split(",")
+    file_label_names = input("Enter labels for files(s): ")
 
-    if label_names[0] == '':
-      label_names = None
+    label_names = None
+
+    if file_label_names:
+      label_names = file_label_names.split(',')
 
     if label_column_name != '':
       label_names = list(set(df[label_column_name]))
@@ -89,7 +91,7 @@ while True:
       generate_code = xml_code
     
     print(columns)
-    generate_code += get_generate_code(type, columns, label_names, label_column_name, skip_rows, sep = best_sep, header = header)
+    generate_code += get_generate_code(type, columns, label_names, label_column_name, file_label_names, skip_rows, sep = best_sep, header = header)
     print(generate_code)
       
     features_code = get_features_code(columns, label_names)
