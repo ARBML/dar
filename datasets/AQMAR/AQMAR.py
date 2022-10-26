@@ -4,7 +4,7 @@ import datasets
 
 class AQMAR(datasets.GeneratorBasedBuilder):
 	def _info(self):
-		return datasets.DatasetInfo(features=datasets.Features({'Word':datasets.Value('string'),'Entity':datasets.Value('string'),'label': datasets.features.ClassLabel(names=['I-MIS1', 'B-MIS1', 'B-LOC', 'B-ORG', 'B-PER', 'I-MIS2', 'I-PER', 'I-ORG', 'O', 'B-MIS2', 'B-MIS0', 'I-MIS0', 'I-LOC','B-MIS3', 'I-MIS3', 'B-MIS', 'B-ENGLISH', 'I--ORG', 'B-MIS-1', 'IO', 'B-MIS-2', 'B-SPANISH', 'B-MISS', 'B-MISS1', 'OO', 'B-MIS1`', 'I-MIS'])}))
+		return datasets.DatasetInfo(features=datasets.Features({'Word':datasets.Value('string'), 'label': datasets.features.ClassLabel(names=['I-MIS1', 'B-MIS1', 'B-LOC', 'B-ORG', 'B-PER', 'I-MIS2', 'I-PER', 'I-ORG', 'O', 'B-MIS2', 'B-MIS0', 'I-MIS0', 'I-LOC','B-MIS3', 'I-MIS3', 'B-MIS', 'B-ENGLISH', 'I--ORG', 'B-MIS-1', 'IO', 'B-MIS-2', 'B-SPANISH', 'B-MISS', 'B-MISS1', 'OO', 'B-MIS1`', 'I-MIS'])}))
 	def _split_generators(self, dl_manager):
 		url = ['https://www.cs.cmu.edu/~ark/ArabicNER/AQMAR_Arabic_NER_corpus-1.0.zip']
 		downloaded_files = dl_manager.download_and_extract(url)
@@ -16,6 +16,6 @@ class AQMAR(datasets.GeneratorBasedBuilder):
 			df = pd.read_csv(open(filepath, 'rb'), sep = ' ', skiprows = 0, error_bad_lines = False, header = None, engine = 'python')
 			df.columns = ['Word', 'Entity']
 			for _, record in df.iterrows():
-				yield str(_id), {'Word':record['Word'],'Entity':record['Entity'],'label':str(record['Entity'])}
+				yield str(_id), {'Word':record['Word'], 'label':str(record['Entity'])}
 				_id += 1 
 

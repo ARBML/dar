@@ -64,7 +64,10 @@ def get_df(type, path, skiprows = 0, sep = ""):
     df = pd.read_excel(path, skiprows = skiprows)
   if type == 'jsonl' or type == 'json':
     df = pd.read_json(path, lines=True)
-  if type in ['csv', 'txt', 'tsv']:
+  if type == 'txt':
+    lines = open(path, 'r').read().splitlines()
+    df = pd.DataFrame(lines)
+  if type in ['csv', 'tsv']:
     if len(sep) > 0:
       df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False, engine = "python")
     else:

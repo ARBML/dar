@@ -53,7 +53,7 @@ while True:
       columns = input('enter the columns: ').split(",")
       df = read_xml(download_data_path[0], columns)
     print(df.head())
-    if type in ['csv', 'txt', 'tsv']:
+    if type in ['csv', 'tsv']:
       print("Found best sep , ", best_sep)
       best_sep = input(f"Set a different Separator for {type}")
       if len(best_sep) > 0:
@@ -89,11 +89,17 @@ while True:
     generate_code = ""
     if type == 'xml':
       generate_code = xml_code
+    if type == 'txt':
+      generate_code = txt_code
     
     print(columns)
     generate_code += get_generate_code(type, columns, label_names, label_column_name, file_label_names, skip_rows, sep = best_sep, header = header)
     print(generate_code)
-      
+
+    if label_column_name != '':
+      if label_column_name in columns:
+        columns.remove(label_column_name)
+
     features_code = get_features_code(columns, label_names)
     print(features_code)
     extra_imports = []

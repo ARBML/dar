@@ -39,7 +39,7 @@ def get_split_code(urls, files, zip_base_dir):
               split_files[MAIN_SPLITS[split]] =f'downloaded_files[{i}]'
 
     if len(split_files) == 0:
-      result.append(f"datasets.SplitGenerator(name=datasets.Split.TRAIN"+", gen_kwargs={"+f"'filepaths': downloaded_files)")
+      result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': downloaded_files})")
     else:
       for split in split_files:
         result.append(f"datasets.SplitGenerator(name=datasets.Split.{split}"+", gen_kwargs={"+f"'filepaths': [{split_files[split]}]"+"})")

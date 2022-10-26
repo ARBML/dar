@@ -22,3 +22,9 @@ xml_code = f'''
 {TABS_3}data[column] = elements
 {TABS_2}return pd.DataFrame(data)
 '''
+
+txt_code = f'''
+{TABS_1}def read_txt(self, filepath):
+{TABS_2}lines = open(filepath, 'r').read().splitlines()
+{TABS_2}return pd.DataFrame(lines)
+'''
