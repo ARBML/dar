@@ -47,11 +47,18 @@ while True:
 
     type = input("Enter the type: ")
     
-    df, best_sep = get_df(type, download_data_path[0])
+    lines = False 
+    
+    if type == 'json':
+      lines = True if input('set lines (y/n) ? ') == 'y' else False
+
+    df, best_sep = get_df(type, download_data_path[0], lines = lines)
     columns = [] 
     if type == 'xml':
       columns = input('enter the columns: ').split(",")
       df = read_xml(download_data_path[0], columns)
+    lines = False
+    
     print(df.head())
     if type in ['csv', 'tsv']:
       print("Found best sep , ", best_sep)
@@ -63,7 +70,7 @@ while True:
     skip_rows = 0
     skip_rows = int(input("Enter rows to skip: "))
     if skip_rows != 0:
-      df, _  = get_df(type, download_data_path[0], skip_rows, sep = best_sep)
+      df, _  = get_df(type, download_data_path[0], skip_rows, sep = best_sep, lines = lines)
       print(df.head())
     columns = list(df.columns)
     print(columns)
@@ -93,7 +100,7 @@ while True:
       generate_code = txt_code
     
     print(columns)
-    generate_code += get_generate_code(type, columns, label_names, label_column_name, file_label_names, skip_rows, sep = best_sep, header = header)
+    generate_code += get_generate_code(type, columns, label_names, label_column_name, file_label_names, skip_rows, sep = best_sep, header = header, lines = lines)
     print(generate_code)
 
     if label_column_name != '':

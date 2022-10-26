@@ -55,7 +55,7 @@ def read_xml(path, columns):
     data[column] = elements
   return pd.DataFrame(data)
 
-def get_df(type, path, skiprows = 0, sep = ""):
+def get_df(type, path, skiprows = 0, sep = "", lines = False):
   print(path)
   best_sep = ""
   best_columns = 0
@@ -63,17 +63,17 @@ def get_df(type, path, skiprows = 0, sep = ""):
   if type == "xlsx":
     df = pd.read_excel(path, skiprows = skiprows)
   if type == 'jsonl' or type == 'json':
-    df = pd.read_json(path, lines=True)
+    df = pd.read_json(path, lines=lines)
   if type == 'txt':
-    lines = open(path, 'r').read().splitlines()
+    lines = open(path, 'r').read().splitlines()[skiprows:]
     df = pd.DataFrame(lines)
   if type in ['csv', 'tsv']:
     if len(sep) > 0:
-      df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False, engine = "python")
+      df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
     else:
       for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
         try:
-          df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False, engine = "python")
+          df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
           num_columns = len(list(df.columns))
           if best_columns < num_columns:
             best_sep = sep
