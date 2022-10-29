@@ -11,7 +11,19 @@ from generate_code import get_generate_code
 from imports_code import get_imports_code
 from split_code import get_split_code
 from glob import glob
+import argparse
+
+import os
+import sys
+
+# Create the parser
+my_parser = argparse.ArgumentParser()
+my_parser.add_argument('--pal','-paths_as_labels', action='store_true')
+args = my_parser.parse_args()
+print(args.pal)
+
 dl_manager = DownloadManager()
+
 datasets_path = 'datasets'
 while True:
     DATASET_NAME = input("Dataset Name: ") 
@@ -20,7 +32,9 @@ while True:
     URL = input("Enter Direct URL: ")
     file_urls = convert_link(URL)
     print(file_urls)
-    zipped = input("Enter zipped y or n") == 'y'
+    zipped = any([ext in file_urls[0] for ext in ['zip', 'rar', 'tar.gz', '7z']])
+    label_names = None
+
     zip_base_dir = ''
     if zipped:
       try:
@@ -36,13 +50,17 @@ while True:
       print(download_data_path)
       alt_glob = input('Enter different glob structure: ')
       if len(alt_glob) > 0:
-        print(alt_glob)
         download_data_path = eval(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+        print(download_data_path)
+      if args.pal:
+        i = int(input('level for the labels: '))
+        label_names = list(set([path.split('/')[i:i+1][0] for path in download_data_path]))
+        print(label_names)
     else:
       download_data_path = dl_manager.download(file_urls)
-    print(download_data_path)
+    # print(download_data_path)
     
-    split_code = get_split_code(file_urls, download_data_path , zip_base_dir)
+    split_code = get_split_code(file_urls, download_data_path , zip_base_dir, alt_glob = alt_glob)
     print(split_code)
 
     type = input("Enter the type: ")
@@ -67,10 +85,10 @@ while True:
         df, _ = get_df(type, download_data_path[0], 0, sep = best_sep)
         print(df.head())
 
-    skip_rows = 0
-    skip_rows = int(input("Enter rows to skip: "))
-    if skip_rows != 0:
-      df, _  = get_df(type, download_data_path[0], skip_rows, sep = best_sep, lines = lines)
+    skiprows = 0
+    skiprows = int(input("Enter rows to skip: "))
+    if skiprows != 0:
+      df, _  = get_df(type, download_data_path[0], skiprows, sep = best_sep, lines = lines)
       print(df.head())
     columns = list(df.columns)
     print(columns)
@@ -80,27 +98,24 @@ while True:
       columns = new_columns
     df.columns= columns
     set_label = True
-    # columns = input("Enter the column names: ").split(",")
-    label_column_name = input("Enter label column name: ")
-    file_label_names = input("Enter labels for files(s): ")
-
-    label_names = None
-
-    if file_label_names:
-      label_names = file_label_names.split(',')
+    label_column_name = ''
+    if not args.pal:
+      label_column_name = input("Enter label column name: ")
 
     if label_column_name != '':
       label_names = list(set(df[label_column_name]))
       print(label_names)
 
     generate_code = ""
+    if args.pal:
+      generate_code += get_labels_from_path
     if type == 'xml':
-      generate_code = xml_code
+      generate_code += xml_code
     if type == 'txt':
-      generate_code = txt_code
+      generate_code += txt_code
     
     print(columns)
-    generate_code += get_generate_code(type, columns, label_names, label_column_name, file_label_names, skip_rows, sep = best_sep, header = header, lines = lines)
+    generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, use_labels_from_path = args.pal, sep = best_sep, header = header, lines = lines)
     print(generate_code)
 
     if label_column_name != '':

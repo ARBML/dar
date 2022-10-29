@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 import pandas as pd
+from scipy.io.arff import loadarff 
 
 def convert_link(links):
   output = []
@@ -55,6 +56,11 @@ def read_xml(path, columns):
     data[column] = elements
   return pd.DataFrame(data)
 
+def read_arff(path):
+  raw_data = loadarff(path)
+  df_data = pd.DataFrame(raw_data[0])
+  return df_data
+
 def get_df(type, path, skiprows = 0, sep = "", lines = False):
   print(path)
   best_sep = ""
@@ -64,6 +70,8 @@ def get_df(type, path, skiprows = 0, sep = "", lines = False):
     df = pd.read_excel(path, skiprows = skiprows)
   if type == 'jsonl' or type == 'json':
     df = pd.read_json(path, lines=lines)
+  if type == 'arff':
+    df = read_arff(path)
   if type == 'txt':
     lines = open(path, 'r').read().splitlines()[skiprows:]
     df = pd.DataFrame(lines)
