@@ -1,0 +1,21 @@
+import os
+import pandas as pd 
+import datasets
+
+class kawarith_Beirut_explosion(datasets.GeneratorBasedBuilder):
+	def _info(self):
+		return datasets.DatasetInfo(features=datasets.Features({'ID':datasets.Value('string'),'affected_individuals_and_help':datasets.Value('string'),'caution_advice_and_crisis_updates':datasets.Value('string'),'emotional_support_and_prayers':datasets.Value('string'),'infrastructure_and_utilities_damage':datasets.Value('string'),'irrelevant':datasets.Value('string'),'opinions_and_criticism':datasets.Value('string'),'label': datasets.features.ClassLabel(names=['caution_advice_and_crisis_updates', 'caution_advice_and_crisis_updates emotional_support_and_prayers', 'affected_individuals_and_help', 'infrastructure_and_utilities_damage', 'affected_individuals_and_help caution_advice_and_crisis_updates', 'irrelevant', 'affected_individuals_and_help opinions_and_criticism', 'opinions_and_criticism emotional_support_and_prayers', 'affected_individuals_and_help opinions_and_criticism emotional_support_and_prayers\xa0', 'caution_advice_and_crisis_updates infrastructure_and_utilities_damage', 'opinions_and_criticism', 'emotional_support_and_prayers', 'caution_advice_and_crisis_updates opinions_and_criticism', 'affected_individuals_and_help infrastructure_and_utilities_damage', 'affected_individuals_and_help emotional_support_and_prayers', 'infrastructure_and_utilities_damage emotional_support_and_prayers', 'emotional_support_and_prayers opinions_and_criticism', 'infrastructure_and_utilities_damage opinions_and_criticism', 'affected_individuals_and_help caution_advice_and_crisis_updates infrastructure_and_utilities_damage'])}))
+	def _split_generators(self, dl_manager):
+		url = ['https://github.com/alaa-a-a/kawarith/archive/master.zip']
+		downloaded_files = dl_manager.download_and_extract(url)
+		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': [os.path.join(downloaded_files[0],f) for f in ['kawarith-main/Labelled Data/Beirut_explosion/Beirut_train.csv']]}),datasets.SplitGenerator(name=datasets.Split.TEST, gen_kwargs={'filepaths': [os.path.join(downloaded_files[0],f) for f in ['kawarith-main/Labelled Data/Beirut_explosion/Beirut_test.csv']]})]
+	def _generate_examples(self, filepaths):
+		_id = 0
+		labels = ['caution_advice_and_crisis_updates', 'caution_advice_and_crisis_updates emotional_support_and_prayers', 'affected_individuals_and_help', 'infrastructure_and_utilities_damage', 'affected_individuals_and_help caution_advice_and_crisis_updates', 'irrelevant', 'affected_individuals_and_help opinions_and_criticism', 'opinions_and_criticism emotional_support_and_prayers', 'affected_individuals_and_help opinions_and_criticism emotional_support_and_prayers\xa0', 'caution_advice_and_crisis_updates infrastructure_and_utilities_damage', 'opinions_and_criticism', 'emotional_support_and_prayers', 'caution_advice_and_crisis_updates opinions_and_criticism', 'affected_individuals_and_help infrastructure_and_utilities_damage', 'affected_individuals_and_help emotional_support_and_prayers', 'infrastructure_and_utilities_damage emotional_support_and_prayers', 'emotional_support_and_prayers opinions_and_criticism', 'infrastructure_and_utilities_damage opinions_and_criticism', 'affected_individuals_and_help caution_advice_and_crisis_updates infrastructure_and_utilities_damage']
+		for i,filepath in enumerate(filepaths):
+			df = pd.read_csv(open(filepath, 'rb'), sep = ',', skiprows = 0, error_bad_lines = False, header = 0)
+			df.columns = ['ID', 'Information type', 'affected_individuals_and_help', 'caution_advice_and_crisis_updates', 'emotional_support_and_prayers', 'infrastructure_and_utilities_damage', 'irrelevant', 'opinions_and_criticism']
+			for _, record in df.iterrows():
+				yield str(_id), {'ID':record['ID'],'affected_individuals_and_help':record['affected_individuals_and_help'],'caution_advice_and_crisis_updates':record['caution_advice_and_crisis_updates'],'emotional_support_and_prayers':record['emotional_support_and_prayers'],'infrastructure_and_utilities_damage':record['infrastructure_and_utilities_damage'],'irrelevant':record['irrelevant'],'opinions_and_criticism':record['opinions_and_criticism'],'label':str(record['Information type'])}
+				_id += 1 
+
