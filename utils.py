@@ -98,7 +98,10 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False):
       print(df[:500])
     
     if len(dfs) > 0:
-      df.columns = dfs[-1].columns
+      try:
+        df.columns = dfs[-1].columns
+      except:
+        continue
     dfs.append(df)
   return pd.concat(dfs), best_sep
 

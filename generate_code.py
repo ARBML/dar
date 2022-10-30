@@ -16,6 +16,8 @@ def get_generate_code(type, features, labels, label_column_name, use_labels_from
       pandas_df = TABS_3+f"df = pd.read_json(open(filepath, 'rb'), lines={lines})\n"
   elif type == 'xml':
       pandas_df = TABS_3+f"df = self.read_xml(filepath, {features})\n"
+  pandas_df += TABS_3+f"if len(df.columns) != {len(features)}:\n"
+  pandas_df += TABS_4+f"continue\n"
   pandas_df += TABS_3+f"df.columns = {features}\n"
   if use_labels_from_path:
     pandas_df += TABS_3+f"label = self.get_label_from_path({labels}, filepath)\n"
