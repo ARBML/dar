@@ -4,6 +4,9 @@ from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 import pandas as pd
 from scipy.io.arff import loadarff 
+import zipfile, os
+from glob import glob
+from constants import *
 
 def convert_link(links):
   output = []
@@ -61,39 +64,43 @@ def read_arff(path):
   df_data = pd.DataFrame(raw_data[0])
   return df_data
 
-def get_df(type, path, skiprows = 0, sep = "", lines = False):
-  print(path)
+def get_df(type, paths, skiprows = 0, sep = "", lines = False):
   best_sep = ""
   best_columns = 0
-  df = None
-  if type == "xlsx":
-    df = pd.read_excel(path, skiprows = skiprows)
-  if type == 'jsonl' or type == 'json':
-    df = pd.read_json(path, lines=lines)
-  if type == 'arff':
-    df = read_arff(path)
-  if type == 'txt':
-    lines = open(path, 'r').read().splitlines()[skiprows:]
-    df = pd.DataFrame(lines)
-  if type in ['csv', 'tsv']:
-    if len(sep) > 0:
-      df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
-    else:
-      for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
-        try:
-          df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
-          num_columns = len(list(df.columns))
-          if best_columns < num_columns:
-            best_sep = sep
-            best_columns = num_columns
-        except:
-          continue
-  if type =='xml':
-    tree = ET.parse(path)
-    root = tree.getroot()
-    df = ET.tostring(root, encoding='unicode', method='xml')
-    print(df[:500])
-  return df, best_sep
+  dfs = []
+  for path in paths:
+    if type == "xlsx":
+      df = pd.read_excel(path, skiprows = skiprows)
+    if type == 'jsonl' or type == 'json':
+      df = pd.read_json(path, lines=lines)
+    if type == 'arff':
+      df = read_arff(path)
+    if type == 'txt':
+      lines = open(path, 'r').read().splitlines()[skiprows:]
+      df = pd.DataFrame(lines)
+    if type in ['csv', 'tsv']:
+      if len(sep) > 0:
+        df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+      else:
+        for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
+          try:
+            df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+            num_columns = len(list(df.columns))
+            if best_columns < num_columns:
+              best_sep = sep
+              best_columns = num_columns
+          except:
+            continue
+    if type =='xml':
+      tree = ET.parse(path)
+      root = tree.getroot()
+      df = ET.tostring(root, encoding='unicode', method='xml')
+      print(df[:500])
+    
+    if len(dfs) > 0:
+      df.columns = dfs[-1].columns
+    dfs.append(df)
+  return pd.concat(dfs), best_sep
 
 def get_split_user(split_files):
     dif_splits = input('Enter different splits (y/n): ')
@@ -110,3 +117,15 @@ def get_split_user(split_files):
         if dev_files != '':
             split_files['VALIDATION'] = dev_files
     return split_files
+
+def extract_all(dir):
+  zip_files = glob(f'{dir}/**/**.zip', recursive=True)
+  for file in zip_files:
+    with zipfile.ZipFile(file) as item:
+      item.extractall('/'.join(file.split('/')[:-1])) 
+
+def get_valid_files(zip_base_dir):
+  files = []
+  for ext in valid_file_ext:
+    files += glob(f"{zip_base_dir}/**/**.{ext}", recursive = True)
+  return files

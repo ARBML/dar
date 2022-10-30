@@ -42,3 +42,19 @@ arff_code = f'''
 {TABS_2}df_data = pd.DataFrame(raw_data[0])
 {TABS_2}return df_data
 '''
+
+extract_all_code = f'''
+{TABS_1}def extract_all(self, dir):
+{TABS_2}zip_files = glob(dir+'/**/**.zip', recursive=True)
+{TABS_2}for file in zip_files:
+{TABS_3}with zipfile.ZipFile(file) as item:
+{TABS_4}item.extractall('/'.join(file.split('/')[:-1])) 
+'''
+get_all_files_code = f'''
+{TABS_1}def get_all_files(self, dir):
+{TABS_2}files = []
+{TABS_2}valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'arff'] 
+{TABS_2}for ext in valid_file_ext:
+{TABS_3}files += glob(f"{{dir}}/**/**.{{ext}}", recursive = True)
+{TABS_2}return files
+'''

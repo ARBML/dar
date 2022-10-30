@@ -43,10 +43,9 @@ while True:
         file_urls = [URL]
         download_data_path = dl_manager.download_and_extract(file_urls)[0]
       zip_base_dir = download_data_path
+      extract_all(zip_base_dir)
       print(zip_base_dir)
-      download_data_path = []
-      for ext in valid_file_ext:
-        download_data_path += glob(f"{zip_base_dir}/**/**.{ext}", recursive = True)
+      download_data_path = get_valid_files(zip_base_dir)
       print(download_data_path)
       alt_glob = input('Enter different glob structure: ')
       if len(alt_glob) > 0:
@@ -70,11 +69,11 @@ while True:
     if type == 'json':
       lines = True if input('set lines (y/n) ? ') == 'y' else False
 
-    df, best_sep = get_df(type, download_data_path[0], lines = lines)
+    df, best_sep = get_df(type, download_data_path, lines = lines)
     columns = [] 
     if type == 'xml':
       columns = input('enter the columns: ').split(",")
-      df = read_xml(download_data_path[0], columns)
+      df = read_xml(download_data_path, columns)
     lines = False
     
     print(df.head())
@@ -82,13 +81,13 @@ while True:
       print("Found best sep , ", best_sep)
       best_sep = input(f"Set a different Separator for {type}")
       if len(best_sep) > 0:
-        df, _ = get_df(type, download_data_path[0], 0, sep = best_sep)
+        df, _ = get_df(type, download_data_path, 0, sep = best_sep)
         print(df.head())
 
     skiprows = 0
     skiprows = int(input("Enter rows to skip: "))
     if skiprows != 0:
-      df, _  = get_df(type, download_data_path[0], skiprows, sep = best_sep, lines = lines)
+      df, _  = get_df(type, download_data_path, skiprows, sep = best_sep, lines = lines)
       print(df.head())
     columns = list(df.columns)
     print(columns)
