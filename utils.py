@@ -7,6 +7,7 @@ from scipy.io.arff import loadarff
 import zipfile, os
 from glob import glob
 from constants import *
+import json 
 
 def convert_link(links):
   output = []
@@ -48,23 +49,34 @@ def get_data(bs, column):
       elements = [el.text for el in bs.find_all(column)]
     return elements
 
-def read_xml(path, columns):
-  with open(path, 'rb') as f:
-      data = f.read()
-  
-  bs = BeautifulSoup(data, "xml")
-  data = {}
-  for column in columns:
-    elements = get_data(bs, column)
-    data[column] = elements
-  return pd.DataFrame(data)
+def read_xml(paths, columns):
+  dfs = []
+  for path in paths:
+    with open(path, 'rb') as f:
+        data = f.read()
+    
+    bs = BeautifulSoup(data, "xml")
+    data = {}
+    for column in columns:
+      elements = get_data(bs, column)
+      data[column] = elements
+    dfs.append(pd.DataFrame(data))
+  return pd.concat(dfs)
+
+def read_json(path, lines = False, json_key = ''):
+  if json_key:
+    data = json.load(open(path))
+    df = pd.DataFrame(data[json_key])
+  else:
+    df = pd.read_json(path, lines=lines)
+  return df
 
 def read_arff(path):
   raw_data = loadarff(path)
   df_data = pd.DataFrame(raw_data[0])
   return df_data
 
-def get_df(type, paths, skiprows = 0, sep = "", lines = False):
+def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = ''):
   best_sep = ""
   best_columns = 0
   dfs = []
@@ -72,7 +84,7 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False):
     if type == "xlsx":
       df = pd.read_excel(path, skiprows = skiprows)
     if type == 'jsonl' or type == 'json':
-      df = pd.read_json(path, lines=lines)
+      df = read_json(path, lines = lines, json_key = json_key)
     if type == 'arff':
       df = read_arff(path)
     if type == 'txt':
@@ -94,8 +106,8 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False):
     if type =='xml':
       tree = ET.parse(path)
       root = tree.getroot()
-      df = ET.tostring(root, encoding='unicode', method='xml')
-      print(df[:500])
+      xml_string = ET.tostring(root, encoding='unicode', method='xml')
+      df = pd.DataFrame([xml_string[:500]])
     
     if len(dfs) > 0:
       try:

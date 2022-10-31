@@ -36,6 +36,8 @@ while True:
     label_names = None
 
     zip_base_dir = ''
+    alt_glob = ''
+    
     if zipped:
       try:
         download_data_path = dl_manager.download_and_extract(file_urls)[0]
@@ -49,11 +51,16 @@ while True:
       print(download_data_path)
       alt_glob = input('Enter different glob structure: ')
       if len(alt_glob) > 0:
+        print(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
         download_data_path = eval(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
         print(download_data_path)
       if args.pal:
         i = int(input('level for the labels: '))
-        label_names = list(set([path.split('/')[i:i+1][0] for path in download_data_path]))
+        if i == -1:
+          label_names = list(set([path.split('/')[-1] for path in download_data_path]))
+          label_names = [lbl.split('.')[0] for lbl in label_names]
+        else:
+          label_names = list(set([path.split('/')[i:i+1][0] for path in download_data_path]))
         print(label_names)
     else:
       download_data_path = dl_manager.download(file_urls)
@@ -65,11 +72,13 @@ while True:
     type = input("Enter the type: ")
     
     lines = False 
-    
+    json_key = ''
+
     if type == 'json':
       lines = True if input('set lines (y/n) ? ') == 'y' else False
+      json_key = input('set json key: ')
 
-    df, best_sep = get_df(type, download_data_path, lines = lines)
+    df, best_sep = get_df(type, download_data_path, lines = lines, json_key=json_key)
     columns = [] 
     if type == 'xml':
       columns = input('enter the columns: ').split(",")
@@ -81,13 +90,13 @@ while True:
       print("Found best sep , ", best_sep)
       best_sep = input(f"Set a different Separator for {type}")
       if len(best_sep) > 0:
-        df, _ = get_df(type, download_data_path, 0, sep = best_sep)
+        df, _ = get_df(type, download_data_path, 0, sep = best_sep, json_key=json_key)
         print(df.head())
 
     skiprows = 0
     skiprows = int(input("Enter rows to skip: "))
     if skiprows != 0:
-      df, _  = get_df(type, download_data_path, skiprows, sep = best_sep, lines = lines)
+      df, _  = get_df(type, download_data_path, skiprows, sep = best_sep, lines = lines, json_key=json_key)
       print(df.head())
     columns = list(df.columns)
     print(columns)
@@ -112,9 +121,12 @@ while True:
       generate_code += xml_code
     if type == 'txt':
       generate_code += txt_code
+    if type == 'json':
+      generate_code += json_code
     
     print(columns)
-    generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, use_labels_from_path = args.pal, sep = best_sep, header = header, lines = lines)
+    generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, 
+                                      use_labels_from_path = args.pal, sep = best_sep, header = header, lines = lines, json_key = json_key)
     print(generate_code)
 
     if label_column_name != '':

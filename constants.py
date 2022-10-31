@@ -58,3 +58,13 @@ get_all_files_code = f'''
 {TABS_3}files += glob(f"{{dir}}/**/**.{{ext}}", recursive = True)
 {TABS_2}return files
 '''
+
+json_code = f'''
+{TABS_1}def read_json(self, filepath, json_key, lines = False):
+{TABS_2}if json_key:
+{TABS_3}data = json.load(open(filepath))
+{TABS_3}df = pd.DataFrame(data[json_key]) 
+{TABS_2}else:
+{TABS_3}df = pd.read_json(filepath, lines=lines)
+{TABS_2}return df
+'''

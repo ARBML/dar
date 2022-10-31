@@ -1,7 +1,7 @@
 from constants import *
 
 def get_generate_code(type, features, labels, label_column_name, use_labels_from_path = False,
-                       skiprows = 0, sep = "\\t", header = None, lines = False):
+                       skiprows = 0, sep = "\\t", header = None, lines = False, json_key =''):
   func_name ="def _generate_examples(self, filepaths):\n"
   loop_files = TABS_2+"_id = 0\n"
   
@@ -13,7 +13,7 @@ def get_generate_code(type, features, labels, label_column_name, use_labels_from
   elif type == 'txt':
       pandas_df = TABS_3+f"df = self.read_txt(filepath, skiprows = {skiprows})\n"
   elif type == 'jsonl' or type == 'json':
-      pandas_df = TABS_3+f"df = pd.read_json(open(filepath, 'rb'), lines={lines})\n"
+      pandas_df = TABS_3+f"df = self.read_json(filepath, lines={lines}, json_key='{json_key}')\n"
   elif type == 'xml':
       pandas_df = TABS_3+f"df = self.read_xml(filepath, {features})\n"
   pandas_df += TABS_3+f"if len(df.columns) != {len(features)}:\n"
