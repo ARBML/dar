@@ -37,7 +37,7 @@ while True:
 
     zip_base_dir = ''
     alt_glob = ''
-    
+    level = None
     if zipped:
       try:
         download_data_path = dl_manager.download_and_extract(file_urls)[0]
@@ -55,12 +55,12 @@ while True:
         download_data_path = eval(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
         print(download_data_path)
       if args.pal:
-        i = int(input('level for the labels: '))
-        if i == -1:
+        level = int(input('level for the labels: '))
+        if level == -1:
           label_names = list(set([path.split('/')[-1] for path in download_data_path]))
-          label_names = [lbl.split('.')[0] for lbl in label_names]
+          label_names = list(set([lbl.split('.')[-2] for lbl in label_names]))
         else:
-          label_names = list(set([path.split('/')[i:i+1][0] for path in download_data_path]))
+          label_names = list(set([path.split('/')[level:level+1][0] for path in download_data_path]))
         print(label_names)
     else:
       download_data_path = dl_manager.download(file_urls)
@@ -123,10 +123,12 @@ while True:
       generate_code += txt_code
     if type == 'json':
       generate_code += json_code
+    if type == 'wav':
+      generate_code += wav_code
     
     print(columns)
     generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, 
-                                      use_labels_from_path = args.pal, sep = best_sep, header = header, lines = lines, json_key = json_key)
+                                      use_labels_from_path = args.pal, sep = best_sep, header = header, lines = lines, json_key = json_key, level = level)
     print(generate_code)
 
     if label_column_name != '':

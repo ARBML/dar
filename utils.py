@@ -76,6 +76,10 @@ def read_arff(path):
   df_data = pd.DataFrame(raw_data[0])
   return df_data
 
+def read_wav(path):
+  raw_data = {'path':[path], 'audio':[path]}
+  return pd.DataFrame(raw_data)
+
 def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = ''):
   best_sep = ""
   best_columns = 0
@@ -87,6 +91,8 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = ''):
       df = read_json(path, lines = lines, json_key = json_key)
     if type == 'arff':
       df = read_arff(path)
+    if type in ['wav', 'mp3']:
+      df = read_wav(path)
     if type == 'txt':
       lines = open(path, 'r').read().splitlines()[skiprows:]
       df = pd.DataFrame(lines)

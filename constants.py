@@ -2,7 +2,7 @@ TABS_1 = "\t"
 TABS_2 = "\t\t"
 TABS_3 = "\t\t\t"
 TABS_4 = "\t\t\t\t"
-valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'arff']
+valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'arff', 'wav', 'mp3']
 xml_code = f'''
 
 {TABS_1}def get_data(self, bs, column):
@@ -30,9 +30,9 @@ txt_code = f'''
 '''
 
 get_labels_from_path = f'''
-{TABS_1}def get_label_from_path(self, labels, path):
-{TABS_2}for label in labels:
-{TABS_3}if label in path:
+{TABS_1}def get_label_from_path(self, labels, label):
+{TABS_2}for l in labels:
+{TABS_3}if l == label:
 {TABS_4}return label
 '''
 
@@ -53,7 +53,7 @@ extract_all_code = f'''
 get_all_files_code = f'''
 {TABS_1}def get_all_files(self, dir):
 {TABS_2}files = []
-{TABS_2}valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'arff'] 
+{TABS_2}valid_file_ext = {valid_file_ext}
 {TABS_2}for ext in valid_file_ext:
 {TABS_3}files += glob(f"{{dir}}/**/**.{{ext}}", recursive = True)
 {TABS_2}return files
@@ -67,4 +67,10 @@ json_code = f'''
 {TABS_2}else:
 {TABS_3}df = pd.read_json(filepath, lines=lines)
 {TABS_2}return df
+'''
+
+wav_code = f'''
+{TABS_1}def read_wav(self, filepath):
+{TABS_2}raw_data = {{'filepath':[filepath], 'audio':[filepath]}}
+{TABS_2}return pd.DataFrame(raw_data)
 '''
