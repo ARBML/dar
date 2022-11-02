@@ -5,9 +5,9 @@ from glob import glob
 import zipfile
 import json
 
-class Named_Entities_Lexicon(datasets.GeneratorBasedBuilder):
+class Comparable_Wikipedia(datasets.GeneratorBasedBuilder):
 	def _info(self):
-		return datasets.DatasetInfo(features=datasets.Features({'Arabic':datasets.Value('string'),'English':datasets.Value('string'),'label': datasets.features.ClassLabel(names=['Pers-En-Ar', 'Loc-En-Ar', 'Org-En-Ar'])}))
+		return datasets.DatasetInfo(features=datasets.Features({'ar':datasets.Value('string'),'arz':datasets.Value('string')}))
 
 	def extract_all(self, dir):
 		zip_files = glob(dir+'/**/**.zip', recursive=True)
@@ -24,16 +24,11 @@ class Named_Entities_Lexicon(datasets.GeneratorBasedBuilder):
 		return files
 
 	def _split_generators(self, dl_manager):
-		url = ['https://github.com/Hkiri-Emna/Named_Entities_Lexicon_Project/archive/master.zip']
+		url = ['https://github.com/motazsaad/comparableWikiCoprus/archive/master.zip']
 		downloaded_files = dl_manager.download_and_extract(url)
 		self.extract_all(downloaded_files[0])
-		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': {'inputs':sorted(glob(downloaded_files[0]+'/Named_Entities_Lexicon_Project-master/**/**.Ar.txt')),'targets':sorted(glob(downloaded_files[0]+'/Named_Entities_Lexicon_Project-master/**/**.En.txt'))} })]
+		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': {'inputs':sorted(glob(downloaded_files[0]+'/comparableWikiCoprus-master/ar-arz/20170120/ar/**.txt')),'targets':sorted(glob(downloaded_files[0]+'/comparableWikiCoprus-master/ar-arz/20170120/arz/**.txt'))} })]
 
-
-	def get_label_from_path(self, labels, label):
-		for l in labels:
-			if l == label:
-				return label
 
 	def read_txt(self, filepath, skiprows = 0, lines = True):
 		if lines:
@@ -43,14 +38,13 @@ class Named_Entities_Lexicon(datasets.GeneratorBasedBuilder):
 	def _generate_examples(self, filepaths):
 		_id = 0
 		for i,filepath in enumerate(filepaths['inputs']):
-			df = self.read_txt(filepath, skiprows = 0, lines = True)
-			df1 = self.read_txt(filepaths['targets'][i], skiprows = 0, lines = True)
+			df = self.read_txt(filepath, skiprows = 0, lines = False)
+			df1 = self.read_txt(filepaths['targets'][i], skiprows = 0, lines = False)
 			df = pd.concat([df,df1], axis = 1)
 			if len(df.columns) != 2:
 				continue
-			df.columns = ['Arabic', 'English']
-			label = self.get_label_from_path(['Pers-En-Ar', 'Loc-En-Ar', 'Org-En-Ar'], filepath.split('/')[-2])
+			df.columns = ['ar', 'arz']
 			for _, record in df.iterrows():
-				yield str(_id), {'Arabic':record['Arabic'],'English':record['English'],'label':str(label)}
+				yield str(_id), {'ar':record['ar'],'arz':record['arz']}
 				_id += 1 
 

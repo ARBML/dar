@@ -1,7 +1,7 @@
 from constants import *
 from utils import get_split_user
 
-def get_split_code(urls, files, zip_base_dir, alt_glob = ''):
+def get_split_code(urls, files, zip_base_dir, input_alt_glob = '', target_alt_glob = ''):
   MAIN_SPLITS = {'train':'TRAIN', 'test':'TEST', 'valid':'VALIDATION', 'dev':'VALIDATION'}
   func_name ="def _split_generators(self, dl_manager):\n"
   body  = TABS_2 + f"url = {urls}\n"
@@ -24,9 +24,14 @@ def get_split_code(urls, files, zip_base_dir, alt_glob = ''):
               split_files[MAIN_SPLITS[split]] =f
 
     if len(split_files) == 0:
-      if alt_glob:
-        alt_glob = alt_glob.replace("glob('", "glob(downloaded_files[0]+'/")
-        result.append(f"datasets.SplitGenerator(name=datasets.Split.TRAIN"+", gen_kwargs={"+f"'filepaths': {alt_glob}"+"})")
+      if input_alt_glob:
+        input_alt_glob = input_alt_glob.replace("glob('", "glob(downloaded_files[0]+'/")
+        split_gen = "datasets.SplitGenerator(name=datasets.Split.TRAIN"+", gen_kwargs={'filepaths': {'inputs':"+f"sorted({input_alt_glob})"
+        if target_alt_glob:
+          target_alt_glob = target_alt_glob.replace("glob('", "glob(downloaded_files[0]+'/")
+          split_gen += ",'targets':"+f"sorted({target_alt_glob})"
+        split_gen += "} })"
+        result.append(split_gen)
       else:
         body += TABS_2+ f"files = self.get_all_files(downloaded_files[0])\n"
         result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': files})")

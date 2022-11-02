@@ -1,3 +1,4 @@
+from unittest import skip
 import fsspec
 import re
 from bs4 import BeautifulSoup
@@ -49,19 +50,18 @@ def get_data(bs, column):
       elements = [el.text for el in bs.find_all(column)]
     return elements
 
-def read_xml(paths, columns):
-  dfs = []
-  for path in paths:
-    with open(path, 'rb') as f:
-        data = f.read()
+def read_xml(path, columns):
+  with open(path, 'rb') as f:
+      data = f.read()
+  
+  bs = BeautifulSoup(data, "xml")
+  data = {}
+  for column in columns:
+    elements = get_data(bs, column)
+    data[column] = elements
+  return pd.DataFrame(data)
     
-    bs = BeautifulSoup(data, "xml")
-    data = {}
-    for column in columns:
-      elements = get_data(bs, column)
-      data[column] = elements
-    dfs.append(pd.DataFrame(data))
-  return pd.concat(dfs)
+  
 
 def read_json(path, lines = False, json_key = ''):
   if json_key:
@@ -80,46 +80,82 @@ def read_wav(path):
   raw_data = {'path':[path], 'audio':[path]}
   return pd.DataFrame(raw_data)
 
-def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = ''):
+def read_txt(path, skiprows = 0, lines = True):
+  if lines:
+    df = pd.DataFrame(open(path, 'r').read().splitlines()[skiprows:])
+  else:
+    df = pd.DataFrame([open(path, 'r').read()])
+  return df 
+
+def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', columns = []):
   best_sep = ""
   best_columns = 0
   dfs = []
-  for path in paths:
+  df2 = None 
+
+  for i, path in enumerate(paths['inputs']):
+    inp = paths['inputs'][i]
+    if 'targets' in paths:
+      trg = paths['targets'][i]
+    else:
+      trg = None
+    
     if type == "xlsx":
-      df = pd.read_excel(path, skiprows = skiprows)
+      df1 = pd.read_excel(inp, skiprows = skiprows)
+      if trg is not None:
+        df2 = pd.read_excel(trg, skiprows = skiprows)
+      df = pd.concat([df1, df2], axis = 1)
     if type == 'jsonl' or type == 'json':
-      df = read_json(path, lines = lines, json_key = json_key)
+      df1 = read_json(inp, lines = lines, json_key = json_key)
+      if trg is not None:
+        df2 = read_json(trg, lines = lines, json_key = json_key)
+      df = pd.concat([df1, df2], axis = 1)
     if type == 'arff':
-      df = read_arff(path)
+      df1 = read_arff(inp)
+      if trg is not None:
+        df1 = read_arff(trg)
+      df = pd.concat([df1, df2], axis = 1)
     if type in ['wav', 'mp3']:
-      df = read_wav(path)
+      df1 = read_wav(inp)
+      if trg is not None:
+        df2 = read_wav(trg)
+      df = pd.concat([df1, df2], axis = 1)
+    if type == 'xml':
+      df1 = read_xml(inp, columns)
+      if trg is not None:
+        df2 = read_xml(trg, columns)
+      df = pd.concat([df1, df2], axis = 1)
     if type == 'txt':
-      lines = open(path, 'r').read().splitlines()[skiprows:]
-      df = pd.DataFrame(lines)
+      df1 = read_txt(inp, skiprows = skiprows, lines = lines)
+      if trg is not None:
+        df2 = read_txt(trg, skiprows = skiprows, lines = lines)
+      df = pd.concat([df1, df2], axis = 1)
     if type in ['csv', 'tsv']:
-      if len(sep) > 0:
-        df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
-      else:
+      if len(sep) == 0:
         for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
           try:
-            df = pd.read_csv(path, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+            df = pd.read_csv(inp, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
             num_columns = len(list(df.columns))
             if best_columns < num_columns:
               best_sep = sep
               best_columns = num_columns
           except:
             continue
+      df1 = pd.read_csv(inp, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+      if trg is not None:
+        df2 = pd.read_csv(trg, sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+      df = pd.concat([df1, df2], axis = 1)
     if type =='xml':
-      tree = ET.parse(path)
+      tree = ET.parse(inp)
       root = tree.getroot()
       xml_string = ET.tostring(root, encoding='unicode', method='xml')
       df = pd.DataFrame([xml_string[:500]])
     
-    if len(dfs) > 0:
-      try:
-        df.columns = dfs[-1].columns
-      except:
-        continue
+    if trg is not None:
+      df.columns = ['inputs', 'targets']
+    elif len(dfs) > 0:
+      df.columns = dfs[-1].columns
+
     dfs.append(df)
   return pd.concat(dfs), best_sep
 

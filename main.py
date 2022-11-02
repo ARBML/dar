@@ -1,4 +1,6 @@
 import os
+
+from attr import has
 import datasets
 from datasets.utils.download_manager import DownloadManager
 from datasets import load_dataset
@@ -19,6 +21,7 @@ import sys
 # Create the parser
 my_parser = argparse.ArgumentParser()
 my_parser.add_argument('--pal','-paths_as_labels', action='store_true')
+my_parser.add_argument('--tal','-texts_as_labels', action='store_true')
 args = my_parser.parse_args()
 print(args.pal)
 
@@ -36,8 +39,12 @@ while True:
     label_names = None
 
     zip_base_dir = ''
-    alt_glob = ''
+    input_alt_glob = ''
+    target_alt_glob = ''
+
     level = None
+    download_data_path = {}
+
     if zipped:
       try:
         download_data_path = dl_manager.download_and_extract(file_urls)[0]
@@ -47,26 +54,34 @@ while True:
       zip_base_dir = download_data_path
       extract_all(zip_base_dir)
       print(zip_base_dir)
-      download_data_path = get_valid_files(zip_base_dir)
+
+      download_data_path = {}
+      download_data_path['inputs'] = get_valid_files(zip_base_dir)
       print(download_data_path)
-      alt_glob = input('Enter different glob structure: ')
-      if len(alt_glob) > 0:
-        print(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
-        download_data_path = eval(alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+
+      input_alt_glob = input('Enter different glob structure: ')
+      if len(input_alt_glob) > 0:
+        download_data_path['inputs'] = eval(input_alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+        download_data_path['inputs'].sort()
+        if args.tal:
+          target_alt_glob = input('Enter target glob structure: ')
+          download_data_path['targets'] = eval(target_alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+          download_data_path['targets'].sort()
         print(download_data_path)
       if args.pal:
         level = int(input('level for the labels: '))
         if level == -1:
-          label_names = list(set([path.split('/')[-1] for path in download_data_path]))
+          label_names = list(set([path.split('/')[-1] for path in download_data_path['inputs']]))
           label_names = list(set([lbl.split('.')[-2] for lbl in label_names]))
         else:
-          label_names = list(set([path.split('/')[level:level+1][0] for path in download_data_path]))
+          label_names = list(set([path.split('/')[level:level+1][0] for path in download_data_path['inputs']]))
         print(label_names)
     else:
-      download_data_path = dl_manager.download(file_urls)
+      download_data_path['inputs'] = dl_manager.download(file_urls)
     # print(download_data_path)
     
-    split_code = get_split_code(file_urls, download_data_path , zip_base_dir, alt_glob = alt_glob)
+    split_code = get_split_code(file_urls, download_data_path , zip_base_dir, 
+                                input_alt_glob = input_alt_glob, target_alt_glob = target_alt_glob)
     print(split_code)
 
     type = input("Enter the type: ")
@@ -78,12 +93,15 @@ while True:
       lines = True if input('set lines (y/n) ? ') == 'y' else False
       json_key = input('set json key: ')
 
+    if type == 'txt':
+      lines = True if input('set lines (y/n) ? ') == 'y' else False
+
     df, best_sep = get_df(type, download_data_path, lines = lines, json_key=json_key)
+
     columns = [] 
     if type == 'xml':
       columns = input('enter the columns: ').split(",")
-      df = read_xml(download_data_path, columns)
-    lines = False
+      df = get_df(type, download_data_path, columns)
     
     print(df.head())
     if type in ['csv', 'tsv']:
@@ -127,8 +145,8 @@ while True:
       generate_code += wav_code
     
     print(columns)
-    generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, 
-                                      use_labels_from_path = args.pal, sep = best_sep, header = header, lines = lines, json_key = json_key, level = level)
+    generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, use_labels_from_path = args.pal 
+                                      , sep = best_sep, header = header, lines = lines, json_key = json_key, level = level, has_target = (target_alt_glob != ''))
     print(generate_code)
 
     if label_column_name != '':

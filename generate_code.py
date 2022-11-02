@@ -1,17 +1,20 @@
 from constants import *
 
 def get_generate_code(type, features, labels, label_column_name, use_labels_from_path = False,
-                       skiprows = 0, sep = "\\t", header = None, lines = False, json_key ='', level = None):
+                       skiprows = 0, sep = "\\t", header = None, lines = False, json_key ='', level = None, has_target = False):
   func_name ="def _generate_examples(self, filepaths):\n"
   loop_files = TABS_2+"_id = 0\n"
   
-  loop_files += TABS_2+"for i,filepath in enumerate(filepaths):\n"
+  loop_files += TABS_2+"for i,filepath in enumerate(filepaths['inputs']):\n"
   if type == 'xlsx':
     pandas_df = TABS_3+f"df = pd.read_excel(open(filepath, 'rb'), skiprows = {skiprows}, header = {header})\n"
   elif type in ['csv', 'tsv']:
     pandas_df = TABS_3+f"df = pd.read_csv(open(filepath, 'rb'), sep = '{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
   elif type == 'txt':
-      pandas_df = TABS_3+f"df = self.read_txt(filepath, skiprows = {skiprows})\n"
+      pandas_df = TABS_3+f"df = self.read_txt(filepath, skiprows = {skiprows}, lines = {lines})\n"
+      if has_target:
+        pandas_df += TABS_3+f"df1 = self.read_txt(filepaths['targets'][i], skiprows = {skiprows}, lines = {lines})\n"
+        pandas_df += TABS_3+f"df = pd.concat([df,df1], axis = 1)\n"  
   elif type == 'jsonl' or type == 'json':
       pandas_df = TABS_3+f"df = self.read_json(filepath, lines={lines}, json_key='{json_key}')\n"
   elif type == 'xml':
@@ -23,7 +26,7 @@ def get_generate_code(type, features, labels, label_column_name, use_labels_from
   pandas_df += TABS_3+f"df.columns = {features}\n"
   if use_labels_from_path:
     if level is not None:
-      if level > -1:
+      if level != -1:
         pandas_df += TABS_3+f"label = self.get_label_from_path({labels}, filepath.split('/')[{level}])\n"
       else:
         pandas_df += TABS_3+f"label = self.get_label_from_path({labels}, filepath.split('/')[{level}].split('.')[-2])\n"

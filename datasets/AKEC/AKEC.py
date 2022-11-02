@@ -5,9 +5,9 @@ from glob import glob
 import zipfile
 import json
 
-class Named_Entities_Lexicon(datasets.GeneratorBasedBuilder):
+class AKEC(datasets.GeneratorBasedBuilder):
 	def _info(self):
-		return datasets.DatasetInfo(features=datasets.Features({'Arabic':datasets.Value('string'),'English':datasets.Value('string'),'label': datasets.features.ClassLabel(names=['Pers-En-Ar', 'Loc-En-Ar', 'Org-En-Ar'])}))
+		return datasets.DatasetInfo(features=datasets.Features({'lemmatized':datasets.Value('string'),'pure':datasets.Value('string')}))
 
 	def extract_all(self, dir):
 		zip_files = glob(dir+'/**/**.zip', recursive=True)
@@ -24,16 +24,11 @@ class Named_Entities_Lexicon(datasets.GeneratorBasedBuilder):
 		return files
 
 	def _split_generators(self, dl_manager):
-		url = ['https://github.com/Hkiri-Emna/Named_Entities_Lexicon_Project/archive/master.zip']
+		url = ['https://github.com/ailab-uniud/akec/archive/master.zip']
 		downloaded_files = dl_manager.download_and_extract(url)
 		self.extract_all(downloaded_files[0])
-		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': {'inputs':sorted(glob(downloaded_files[0]+'/Named_Entities_Lexicon_Project-master/**/**.Ar.txt')),'targets':sorted(glob(downloaded_files[0]+'/Named_Entities_Lexicon_Project-master/**/**.En.txt'))} })]
+		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': {'inputs':sorted(glob(downloaded_files[0]+'/akec-master/keyphrases/sort_frequency/lemmatized.txt')),'targets':sorted(glob(downloaded_files[0]+'/akec-master/keyphrases/sort_frequency/pure.txt'))} })]
 
-
-	def get_label_from_path(self, labels, label):
-		for l in labels:
-			if l == label:
-				return label
 
 	def read_txt(self, filepath, skiprows = 0, lines = True):
 		if lines:
@@ -48,9 +43,8 @@ class Named_Entities_Lexicon(datasets.GeneratorBasedBuilder):
 			df = pd.concat([df,df1], axis = 1)
 			if len(df.columns) != 2:
 				continue
-			df.columns = ['Arabic', 'English']
-			label = self.get_label_from_path(['Pers-En-Ar', 'Loc-En-Ar', 'Org-En-Ar'], filepath.split('/')[-2])
+			df.columns = ['lemmatized', 'pure']
 			for _, record in df.iterrows():
-				yield str(_id), {'Arabic':record['Arabic'],'English':record['English'],'label':str(label)}
+				yield str(_id), {'lemmatized':record['lemmatized'],'pure':record['pure']}
 				_id += 1 
 
