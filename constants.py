@@ -73,6 +73,9 @@ json_code = f'''
 
 wav_code = f'''
 {TABS_1}def read_wav(self, filepath):
-{TABS_2}raw_data = {{'filepath':[filepath], 'audio':[filepath]}}
+{TABS_2}if filepath.endswith('.wav') or filepath.endswith('.mp3'):
+{TABS_3}raw_data = {{'filepath':[filepath], 'audio':[filepath]}}
+{TABS_2}else:
+{TABS_3}raw_data = {{'text':[open(filepath).read()]}}
 {TABS_2}return pd.DataFrame(raw_data)
 '''

@@ -1,7 +1,7 @@
 from constants import *
 from utils import get_split_user
 
-def get_split_code(urls, files, zip_base_dir, input_alt_glob = '', target_alt_glob = ''):
+def get_split_code(urls, files, zip_base_dir, alt_globs = []):
   MAIN_SPLITS = {'train':'TRAIN', 'test':'TEST', 'valid':'VALIDATION', 'dev':'VALIDATION'}
   func_name ="def _split_generators(self, dl_manager):\n"
   body  = TABS_2 + f"url = {urls}\n"
@@ -14,32 +14,37 @@ def get_split_code(urls, files, zip_base_dir, input_alt_glob = '', target_alt_gl
   result = []    
   if len(zip_base_dir) > 0:
     split_files = {}
-    files = [f.replace(zip_base_dir, "")[1:] for f in files] # only extract the directory to files, the base dir is random
-    for i,f in enumerate(files):
-      for split in MAIN_SPLITS:
-          if split in f.lower():
-            if MAIN_SPLITS[split] in split_files:
-              split_files[MAIN_SPLITS[split]]+=','+f
-            else:
-              split_files[MAIN_SPLITS[split]] =f
+    print(files)
+    for i,glob_name in enumerate(files):
+      for f in files[glob_name]:
+          f = f.replace(zip_base_dir, "")[1:]
+          for split in MAIN_SPLITS:
+              if split in f.lower():
+                  if MAIN_SPLITS[split] not in split_files:
+                      split_files[MAIN_SPLITS[split]] =f"'{glob_name}':[os.path.join(downloaded_files[0],'{f}'),]"
+                  elif  glob_name in split_files[MAIN_SPLITS[split]]:
+                      split_files[MAIN_SPLITS[split]] = split_files[MAIN_SPLITS[split]][:-1] +f"os.path.join(downloaded_files[0],'{f}'),]"
+                  else:
+                      split_files[MAIN_SPLITS[split]] += f",'{glob_name}':[os.path.join(downloaded_files[0],'{f}'),]"
 
     if len(split_files) == 0:
-      if input_alt_glob:
-        input_alt_glob = input_alt_glob.replace("glob('", "glob(downloaded_files[0]+'/")
-        split_gen = "datasets.SplitGenerator(name=datasets.Split.TRAIN"+", gen_kwargs={'filepaths': {'inputs':"+f"sorted({input_alt_glob})"
-        if target_alt_glob:
-          target_alt_glob = target_alt_glob.replace("glob('", "glob(downloaded_files[0]+'/")
-          split_gen += ",'targets':"+f"sorted({target_alt_glob})"
+      if len(alt_globs)> 0:
+        split_gen = "datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{"
+
+        for alt_glob in alt_globs:
+          glob_name = list(alt_glob.keys())[0] 
+          glob_struct = alt_glob[glob_name]
+          glob_struct = glob_struct.replace("glob('", "glob(downloaded_files[0]+'/")
+          split_gen += f"'{glob_name}':sorted({glob_struct}),"
         split_gen += "} })"
         result.append(split_gen)
       else:
         body += TABS_2+ f"files = self.get_all_files(downloaded_files[0])\n"
-        result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': files})")
+        result.append("datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': {'inputs':files} })")
         
     else:
-      split_files = get_split_user(split_files)
       for split in split_files:
-        result.append(f"datasets.SplitGenerator(name=datasets.Split.{split}"+", gen_kwargs={"+f"'filepaths': [os.path.join(downloaded_files[0],f) for f in {split_files[split].split(',')}]"+"})")
+        result.append(f"datasets.SplitGenerator(name=datasets.Split.{split}"+", gen_kwargs={'filepaths':{"+f"{split_files[split]}"+"} })")
   else:
     split_files = {}
     for i, url in enumerate(urls):
