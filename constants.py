@@ -24,9 +24,11 @@ xml_code = f'''
 '''
 
 txt_code = f'''
-{TABS_1}def read_txt(self, filepath, skiprows = 0):
-{TABS_2}lines = open(filepath, 'r').read().splitlines()[skiprows:]
-{TABS_2}return pd.DataFrame(lines)
+{TABS_1}def read_txt(self, filepath, skiprows = 0, lines = True):
+{TABS_2}if lines:
+{TABS_3}return pd.DataFrame(open(filepath, 'r').read().splitlines()[skiprows:])
+{TABS_2}else:
+{TABS_3}return pd.DataFrame([open(filepath, 'r').read()])
 '''
 
 get_labels_from_path = f'''
@@ -71,6 +73,9 @@ json_code = f'''
 
 wav_code = f'''
 {TABS_1}def read_wav(self, filepath):
-{TABS_2}raw_data = {{'filepath':[filepath], 'audio':[filepath]}}
+{TABS_2}if filepath.endswith('.wav') or filepath.endswith('.mp3'):
+{TABS_3}raw_data = {{'filepath':[filepath], 'audio':[filepath]}}
+{TABS_2}else:
+{TABS_3}raw_data = {{'text':[open(filepath).read()]}}
 {TABS_2}return pd.DataFrame(raw_data)
 '''
