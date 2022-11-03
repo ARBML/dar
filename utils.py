@@ -91,6 +91,7 @@ def read_arff(paths, i):
 
 def read_csv(paths, i, sep = '', skiprows = 0):
   dfs = []
+  best_sep = ""
   for path_name in paths:
     if len(sep) == 0:
       for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
