@@ -55,7 +55,7 @@ def read_xml(paths, i, columns = None):
     tree = ET.parse(paths['inputs'][i])
     root = tree.getroot()
     xml_string = ET.tostring(root, encoding='unicode', method='xml')
-    return  pd.DataFrame([xml_string[:500]])
+    return  pd.DataFrame(xml_string[:500].split("\n"))
   else:
     dfs = []
     for path_name in paths:
@@ -139,7 +139,7 @@ def read_txt(paths, i, skiprows = 0, lines = True):
     dfs.append(df)
   return pd.concat(dfs, axis = 1) 
 
-def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', columns = []):
+def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', columns = None):
   best_sep = ""
   dfs = []
 
@@ -158,7 +158,8 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', co
       df = read_wav(paths, i)
 
     if type == 'xml':
-      df = read_xml(paths, i, columns)
+      print(columns)
+      df = read_xml(paths, i, columns = columns)
 
     if type == 'txt':
       df = read_txt(paths, i, skiprows = skiprows, lines = lines)
@@ -166,9 +167,7 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', co
     if type in ['csv', 'tsv']:
       df, best_sep = read_csv(paths, i, sep = f'{sep}', skiprows = skiprows)
       
-    if type =='xml':
-      read_xml(paths, i, columns = None)
-    
+
     if len(dfs) > 0:
       df.columns = dfs[-1].columns
 

@@ -35,7 +35,7 @@ while True:
     URL = input("Enter Direct URL: ")
     file_urls = convert_link(URL)
     print(file_urls)
-    zipped = any([ext in file_urls[0] for ext in ['zip', 'rar', 'tar.gz', '7z']])
+    zipped = any([ext in file_urls[0] for ext in ['zip', 'rar', 'tar.gz', '7z', 'drive']])
     label_names = None
 
     zip_base_dir = ''
@@ -87,7 +87,7 @@ while True:
         print(label_names)
     else:
       download_data_path['inputs'] = dl_manager.download(file_urls)
-    # print(download_data_path)
+    print(download_data_path)
     
     split_code = get_split_code(file_urls, download_data_path , zip_base_dir, alt_globs)
     print(split_code)
@@ -105,13 +105,13 @@ while True:
       lines = True if input('set lines (y/n) ? ') == 'y' else False
 
     df, best_sep = get_df(type, download_data_path, lines = lines, json_key=json_key)
-
+    print(df.head())
     columns = [] 
     if type == 'xml':
       columns = input('enter the columns: ').split(",")
-      df = get_df(type, download_data_path, columns)
+      df,_ = get_df(type, download_data_path, columns = columns)
+      print(df.head())
     
-    print(df.head())
     if type in ['csv', 'tsv']:
       print("Found best sep , ", best_sep)
       best_sep = input(f"Set a different Separator for {type}")
