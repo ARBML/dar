@@ -3,7 +3,7 @@
 The main script can be ran using the following commands 
 
 ```bash
-python main.py
+python src/main.py
 ```
 
 ## Arguments 
