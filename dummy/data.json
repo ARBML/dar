@@ -1,0 +1,15 @@
+{
+	"version": "v1.0",
+	"data": [
+		{
+			"name":"Raphael",
+			"age":"26",
+			"gender":"male"
+		},
+		{
+			"name":"Catrina",
+			"age":"20",
+			"gender":"female"
+		}
+	]
+}
