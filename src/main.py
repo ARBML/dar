@@ -4,7 +4,6 @@ from datasets.utils.download_manager import DownloadManager
 from datasets import load_dataset
 from utils import * 
 from class_code import get_class_code
-from constants import * 
 from features_code import get_features_code
 from generate_code import get_generate_code
 from imports_code import get_imports_code
@@ -44,7 +43,6 @@ if zipped:
   zip_base_dir = download_data_path
   extract_all(zip_base_dir)
   print(zip_base_dir)
-
   download_data_path = {}
   download_data_path['inputs'] = get_valid_files(zip_base_dir)
   print(download_data_path)
@@ -64,10 +62,7 @@ if zipped:
       download_data_path[f'targets{i}'].sort()
       alt_globs.append({f'targets{i}':alt_glob})
       i += 1
-
-    
-
-  print(download_data_path)
+  
   if args.pal:
     level = int(input('level for the labels: '))
     if level == -1:
@@ -78,52 +73,59 @@ if zipped:
     print(label_names)
 else:
   download_data_path['inputs'] = dl_manager.download(file_urls)
+
 print(download_data_path)
 
 split_code = get_split_code(file_urls, download_data_path , zip_base_dir, alt_globs)
-print(split_code)
 
 type = input("Enter the type: ")
 
+# file types paramters
 lines = False 
 json_key = ''
+columns = []
+best_sep = ','
 
 if type == 'json':
-  lines = True if input('set lines (y/n) ? ') == 'y' else False
+  lines = True if input('set lines (y/n)? ') == 'y' else False
   json_key = input('set json key: ')
 
 if type == 'txt':
-  lines = True if input('set lines (y/n) ? ') == 'y' else False
+  lines = True if input('set lines (y/n)? ') == 'y' else False
 
-df, best_sep = get_df(type, download_data_path, lines = lines, json_key=json_key)
-print(df.head())
-columns = [] 
 if type == 'xml':
   columns = input('enter the columns: ').split(",")
-  df,_ = get_df(type, download_data_path, columns = columns)
-  print(df.head())
 
+df = get_df(type, download_data_path, lines = lines, json_key = json_key, columns = columns)
+print(df.head())
+ 
 if type in ['csv', 'tsv']:
-  print("Found best sep , ", best_sep)
-  best_sep = input(f"Set a different Separator for {type}")
-  if len(best_sep) > 0:
-    df, _ = get_df(type, download_data_path, 0, sep = best_sep, json_key=json_key)
+  alt_sep = input(f"Set a separator for {type}: ")
+  if alt_sep:
+    df = get_df(type, download_data_path, 0, sep = alt_sep, json_key=json_key)
     print(df.head())
+  else:
+    print('using default separator ', {best_sep})
 
-skiprows = 0
-skiprows = int(input("Enter rows to skip: "))
+skiprows = input("Enter rows to skip: ")
+skiprows = int(skiprows) if skiprows else 0
+
 if skiprows != 0:
-  df, _  = get_df(type, download_data_path, skiprows, sep = best_sep, lines = lines, json_key=json_key)
+  df, _  = get_df(type, download_data_path, skiprows = skiprows, sep = best_sep, lines = lines, json_key=json_key)
   print(df.head())
+
 columns = list(df.columns)
-print(columns)
+
 header = None if input("Data has a column (y/n)? ") == 'n' else 0
 new_columns = input("Enter new columns separated by comma: ").split(",")
+
 if len(new_columns[0]) != 0:
   columns = new_columns
 df.columns= columns
-set_label = True
+print(columns)
+
 label_column_name = ''
+
 if not args.pal:
   label_column_name = input("Enter label column name: ")
 
@@ -131,38 +133,20 @@ if label_column_name != '':
   label_names = list(set(df[label_column_name]))
   print(label_names)
 
-generate_code = ""
-if args.pal:
-  generate_code += get_labels_from_path
-if type == 'xml':
-  generate_code += xml_code
-if type == 'txt':
-  generate_code += txt_code
-if type == 'json':
-  generate_code += json_code
-if type == 'wav':
-  generate_code += wav_code
-
-print(columns)
-generate_code += get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, use_labels_from_path = args.pal 
+generate_code = get_generate_code(type, columns, label_names, label_column_name, skiprows = skiprows, use_labels_from_path = args.pal 
                                   , sep = best_sep, header = header, lines = lines, json_key = json_key, level = level, alt_globs = alt_globs)
-print(generate_code)
 
-if label_column_name != '':
-  if label_column_name in columns:
-    columns.remove(label_column_name)
-
+import_code = get_imports_code(type)
 features_code = get_features_code(columns, label_names)
-print(features_code)
-extra_imports = []
-if type == 'xml':
-  extra_imports = ['import re', 'from bs4 import BeautifulSoup']
-import_code = get_imports_code(extra_imports)
+
+
+# generate code and load the dataset
 code = import_code+main_class_code+features_code+split_code+generate_code
 os.makedirs(f"{datasets_path}/{DATASET_NAME}", exist_ok = True)
 open(f"{datasets_path}/{DATASET_NAME}/{DATASET_NAME}.py", "w").write(code)
 dataset = load_dataset(f"{datasets_path}/{DATASET_NAME}")
 print(dataset)
+
 if input("push to hub: ") == 'y':
   print('pushing to the hub') 
   dataset.push_to_hub(f"arbml/{DATASET_NAME}")

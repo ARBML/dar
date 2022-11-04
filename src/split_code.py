@@ -14,7 +14,6 @@ def get_split_code(urls, files, zip_base_dir, alt_globs = []):
   result = []    
   if len(zip_base_dir) > 0:
     split_files = {}
-    print(files)
     for i,glob_name in enumerate(files):
       for f in files[glob_name]:
           f = f.replace(zip_base_dir, "")[1:]

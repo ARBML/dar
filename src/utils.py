@@ -89,25 +89,13 @@ def read_arff(paths, i):
     dfs.append(df)
   return pd.concat(dfs, axis = 1)
 
-def read_csv(paths, i, sep = '', skiprows = 0):
+def read_csv(paths, i, sep = ',', skiprows = 0):
   dfs = []
-  best_sep = ""
   for path_name in paths:
-    if len(sep) == 0:
-      for sep in ["\\\t", ";", ","]: #TODO I need to consider the case when we have single sepace separator
-        try:
-          df = pd.read_csv(paths[path_name][i], sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
-          num_columns = len(list(df.columns))
-          if best_columns < num_columns:
-            best_sep = sep
-            best_columns = num_columns
-        except:
-          continue
-    else:
-      df = pd.read_csv(paths[path_name][i], sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+    df = pd.read_csv(paths[path_name][i], sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
     dfs.append(df)
 
-  return pd.concat(dfs, axis = 1), best_sep
+  return pd.concat(dfs, axis = 1)
 
 def read_wav(paths, i):
   dfs = []
@@ -139,8 +127,7 @@ def read_txt(paths, i, skiprows = 0, lines = True):
     dfs.append(df)
   return pd.concat(dfs, axis = 1) 
 
-def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', columns = None):
-  best_sep = ""
+def get_df(type, paths, skiprows = 0, sep = ",", lines = False, json_key = '', columns = None):
   dfs = []
 
   for i, _ in enumerate(paths['inputs']):
@@ -165,14 +152,14 @@ def get_df(type, paths, skiprows = 0, sep = "", lines = False, json_key = '', co
       df = read_txt(paths, i, skiprows = skiprows, lines = lines)
 
     if type in ['csv', 'tsv']:
-      df, best_sep = read_csv(paths, i, sep = f'{sep}', skiprows = skiprows)
+      df = read_csv(paths, i, sep = f'{sep}', skiprows = skiprows)
       
 
     if len(dfs) > 0:
       df.columns = dfs[-1].columns
 
     dfs.append(df)
-  return pd.concat(dfs), best_sep
+  return pd.concat(dfs)
 
 def get_split_user(split_files):
     dif_splits = input('Enter different splits (y/n): ')
