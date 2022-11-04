@@ -1,6 +1,10 @@
 # datasets_auto_wrapper
 
-A simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. 
+A simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. Here is an example of creating a loading script for a simple dataset:
+
+<video src='https://user-images.githubusercontent.com/15667714/200085495-f92d566b-6aee-430c-b7e0-e4a5da00ee27.mp4'/>
+
+
 ## Script
 
 The main script can be ran using the following commands 
@@ -13,7 +17,7 @@ python main.py
 * `--pal`: this argument is used for datasets that have labels as part of the foulder/file names. Upon 
 choosing this command the use is prompted to enter the `levels` which represents an integer that is used to extract the labels names from the full path. For example in `base_path/label/**.txt`, we define leveels = -2 which means that `label` will be given for all the files inside the label foulder. We can also define `base_path/label.txt` with levels = -2 which will remove the file extension `.txt`.
 * `--p`: where to save the dataset script. The default path is `datasets/`
-* `--hf` where to save the dataset at huggingface, the default org is `arbml/DATASET_NAME`
+* `--hf` where to save the dataset at huggingface, the default path is `hf=arbml` hence any dataset will be uploaded to `arbml/DATASET_NAME`. Note that you need an access token to upload to a specific foulder on Huggingface. 
 * `--squad` support squad like dataset with the same content. 
 
 
@@ -44,5 +48,5 @@ All the files will be processed using `pandas`. The user can modify some content
 * `Data has a column? (y/n)` used to deal with files that have no column names, the user can set that `n` and enter the column names in the next step. 
 * `Enter new columns separated by comma:` used to creat different names for the columns or add columns if non exist. 
 * `Enter label column name:` used to choose the column that contains the labels. For example in sentiment anlaysis we will have the contents in a column as `positive` or `negative`. The user can put the name of that column to recognize that as the label. `datasets` will convert that to an integer which can be easily procssed by nlp model pipleines. 
-* `push to hub:` used to upload the dataset to hub. 
+* `push to hub:` used to upload the dataset to hub. The file will uploaded to the following directory `hf/DATASET_NAME` where `hf` can be specified using the argument `--hf`
 
