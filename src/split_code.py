@@ -1,5 +1,4 @@
-from constants import *
-from utils import get_split_user
+from .constants import *
 
 def get_split_code(urls, files, zip_base_dir, alt_globs = []):
   MAIN_SPLITS = {'train':'TRAIN', 'test':'TEST', 'valid':'VALIDATION', 'dev':'VALIDATION', 'val':'VALIDATION'}

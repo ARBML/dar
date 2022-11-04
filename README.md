@@ -6,7 +6,7 @@ A simple semi-supervised approach for creating huggingface data script loaders a
 The main script can be ran using the following commands 
 
 ```bash
-python src/main.py
+python main.py
 ```
 
 ## Arguments 

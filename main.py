@@ -2,13 +2,13 @@ import os
 
 from datasets.utils.download_manager import DownloadManager
 from datasets import load_dataset
-from utils import * 
-from class_code import get_class_code
-from features_code import get_features_code
-from generate_code import get_generate_code
-from imports_code import get_imports_code
-from split_code import get_split_code
-from squad_code import get_squad_code
+from src.utils import * 
+from src.class_code import get_class_code
+from src.features_code import get_features_code
+from src.generate_code import get_generate_code
+from src.imports_code import get_imports_code
+from src.split_code import get_split_code
+from src.squad_code import get_squad_code
 import argparse
 import os
 

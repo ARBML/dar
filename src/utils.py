@@ -7,7 +7,7 @@ import pandas as pd
 from scipy.io.arff import loadarff 
 import zipfile, os
 from glob import glob
-from constants import *
+from .constants import *
 import json 
 
 def convert_link(links):
@@ -145,7 +145,6 @@ def get_df(type, paths, skiprows = 0, sep = ",", lines = False, json_key = '', c
       df = read_wav(paths, i)
 
     if type == 'xml':
-      print(columns)
       df = read_xml(paths, i, columns = columns)
 
     if type == 'txt':

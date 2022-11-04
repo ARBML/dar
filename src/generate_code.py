@@ -1,4 +1,4 @@
-from constants import *
+from .constants import *
 
 def get_generate_code(type, columns, labels, label_column_name, use_labels_from_path = False,
                        skiprows = 0, sep = ",", header = None, lines = False, json_key ='', level = None, alt_globs = []):
