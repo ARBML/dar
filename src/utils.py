@@ -141,7 +141,7 @@ def get_df(type, paths, skiprows = 0, sep = ",", lines = False, json_key = '', c
     if type == 'arff':
       df = read_arff(paths, i)
 
-    if type in ['wav', 'mp3']:
+    if type == 'wav':
       df = read_wav(paths, i)
 
     if type == 'xml':
@@ -150,7 +150,7 @@ def get_df(type, paths, skiprows = 0, sep = ",", lines = False, json_key = '', c
     if type == 'txt':
       df = read_txt(paths, i, skiprows = skiprows, lines = lines)
 
-    if type in ['csv', 'tsv']:
+    if type == 'csv':
       df = read_csv(paths, i, sep = f'{sep}', skiprows = skiprows)
       
 

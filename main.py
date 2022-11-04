@@ -93,12 +93,11 @@ else:
   columns = []
   best_sep = ','
 
-  if type == 'json':
+  if type in ['json', 'txt']:
     lines = True if input('set lines (y/n)? ') == 'y' else False
-    json_key = input('set json key: ')
 
-  if type == 'txt':
-    lines = True if input('set lines (y/n)? ') == 'y' else False
+  if type == 'json':
+    json_key = input('set json key: ')
 
   if type == 'xml':
     columns = input('enter the columns: ').split(",")
@@ -106,7 +105,7 @@ else:
   df = get_df(type, download_data_path, lines = lines, json_key = json_key, columns = columns)
   print(df.head())
   
-  if type in ['csv', 'tsv']:
+  if type == 'csv':
     alt_sep = input(f"Set a separator for {type}: ")
     if alt_sep:
       df = get_df(type, download_data_path, 0, sep = alt_sep, json_key=json_key)
@@ -123,7 +122,10 @@ else:
 
   columns = list(df.columns)
 
-  header = None if input("Data has a column (y/n)? ") == 'n' else 0
+  if type in ['wav','xml','json']:
+    header = 0
+  else:
+    header = None if input("Data has a column (y/n)? ") == 'n' else 0
   new_columns = input("Enter new columns separated by comma: ").split(",")
 
   if len(new_columns[0]) != 0:
