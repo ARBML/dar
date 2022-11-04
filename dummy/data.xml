@@ -1,10 +1,12 @@
-<person>
-<name>Raphael</name>
-<age>26</age>
-<gender>male</gender>
-</pserson>
-<person>
-<name>Catrina</name>
-<age>20</age>
-<gender>female</gender>
-</pserson>
+<root>
+    <person>
+    <name>Raphael</name>
+    <age>26</age>
+    <gender>male</gender>
+    </person>
+    <person>
+    <name>Catrina</name>
+    <age>20</age>
+    <gender>female</gender>
+    </person>
+</root>
