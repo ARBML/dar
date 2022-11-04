@@ -12,10 +12,9 @@ python src/main.py
 ## Arguments 
 * `--pal`: this argument is used for datasets that have labels as part of the foulder/file names. Upon 
 choosing this command the use is prompted to enter the `levels` which represents an integer that is used to extract the labels names from the full path. For example in `base_path/label/**.txt`, we define leveels = -2 which means that `label` will be given for all the files inside the label foulder. We can also define `base_path/label.txt` with levels = -2 which will remove the file extension `.txt`.
-
 * `--p`: where to save the dataset script. The default path is `datasets/`
-
 * `--hf` where to save the dataset at huggingface, the default org is `arbml/DATASET_NAME`
+* `--squad` support squad like dataset with the same content. 
 
 
 ## Supported Links Types 
