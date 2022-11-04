@@ -2,7 +2,7 @@
 
 A simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. Here is an example of creating a loading script for a simple dataset:
 
-<video src='https://user-images.githubusercontent.com/15667714/200085495-f92d566b-6aee-430c-b7e0-e4a5da00ee27.mp4'/>
+<video src='https://user-images.githubusercontent.com/15667714/200085495-f92d566b-6aee-430c-b7e0-e4a5da00ee27.mp4'></video>
 
 
 ## Script
