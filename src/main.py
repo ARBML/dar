@@ -14,11 +14,13 @@ import os
 # Create the parser
 my_parser = argparse.ArgumentParser()
 my_parser.add_argument('--pal','-paths_as_labels', action='store_true')
+my_parser.add_argument('--p','-save_pah', type = str, action='store', default = 'datasets')
+my_parser.add_argument('--hf','-hf_path', type = str, action='store', default = 'arbml')
 args = my_parser.parse_args()
 
 dl_manager = DownloadManager()
 
-datasets_path = 'datasets'
+datasets_path = args.p
 DATASET_NAME = input("Dataset Name: ") 
 
 main_class_code = get_class_code(DATASET_NAME)
@@ -149,4 +151,4 @@ print(dataset)
 
 if input("push to hub: ") == 'y':
   print('pushing to the hub') 
-  dataset.push_to_hub(f"arbml/{DATASET_NAME}")
+  dataset.push_to_hub(f"{args.hf}/{DATASET_NAME}")

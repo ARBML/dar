@@ -1,5 +1,8 @@
 # datasets_auto_wrapper
 
+A simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. 
+## Script
+
 The main script can be ran using the following commands 
 
 ```bash
@@ -7,8 +10,13 @@ python src/main.py
 ```
 
 ## Arguments 
-`--pal`: this argument is used for datasets that have labels as part of the foulder/file names. Upon 
-choosing this command the use is prompted to enter the `levels` which represents an integer that is used to extract the labels names from the full path. For example in `base_path/label/**.txt`, we define leveels = -2 which means that `label` will be given for all the files inside the label foulder. We can also define `base_path/label.txt` with levels = -2 which will remove the file extension `.txt`. 
+* `--pal`: this argument is used for datasets that have labels as part of the foulder/file names. Upon 
+choosing this command the use is prompted to enter the `levels` which represents an integer that is used to extract the labels names from the full path. For example in `base_path/label/**.txt`, we define leveels = -2 which means that `label` will be given for all the files inside the label foulder. We can also define `base_path/label.txt` with levels = -2 which will remove the file extension `.txt`.
+
+* `--p`: where to save the dataset script. The default path is `datasets/`
+
+* `--hf` where to save the dataset at huggingface, the default org is `arbml/DATASET_NAME`
+
 
 ## Supported Links Types 
 Mainly after entering the dataset name, the user will be prompted to enter the dataset link. The user can either enter one link or mutliple links separated by comma. The supported links are the following 
