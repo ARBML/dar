@@ -92,7 +92,7 @@ def read_arff(paths, i):
 def read_csv(paths, i, sep = ',', skiprows = 0):
   dfs = []
   for path_name in paths:
-    df = pd.read_csv(paths[path_name][i], sep = f'{sep}', skiprows = skiprows, error_bad_lines = False)
+    df = pd.read_csv(paths[path_name][i], sep = sep, skiprows = skiprows, error_bad_lines = False)
     dfs.append(df)
 
   return pd.concat(dfs, axis = 1)
