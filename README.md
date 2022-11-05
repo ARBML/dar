@@ -1,6 +1,8 @@
 # dar
 
-<center><img src = "logo.png" width = "250"/></center>
+<p align="center">
+    <img src = "logo.png" width = "250"/>
+</p>
 
 _dar_ or _دار_ which means house in Araibc is a simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. Here is an example of creating a loading script for a simple dataset:
 
