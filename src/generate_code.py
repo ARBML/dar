@@ -5,15 +5,15 @@ def get_generate_code(type, columns, labels, label_column_name, use_labels_from_
   
   type_helper_fns = ""
   if use_labels_from_path:
-    type_helper_fns = get_labels_from_path
+    type_helper_fns += get_labels_from_path
   if type == 'xml':
-    type_helper_fns = xml_code
+    type_helper_fns += xml_code
   if type == 'txt':
-    type_helper_fns = txt_code
+    type_helper_fns += txt_code
   if type == 'json':
-    type_helper_fns = json_code
+    type_helper_fns += json_code
   if type == 'wav':
-    type_helper_fns = wav_code
+    type_helper_fns += wav_code
   
   func_name ="def _generate_examples(self, filepaths):\n"
   loop_files = TABS_2+"_id = 0\n"
