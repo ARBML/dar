@@ -1,0 +1,3 @@
+name\tage\tgender
+Raphael\t26\tmale
+Catrina\t20\tfemale

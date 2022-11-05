@@ -109,6 +109,7 @@ else:
     alt_sep = input(f"Set a separator for {type}: ")
     if alt_sep:
       df = get_df(type, download_data_path, 0, sep = alt_sep, json_key=json_key)
+      best_sep = alt_sep
       print(df.head())
     else:
       print('using default separator ', {best_sep})
