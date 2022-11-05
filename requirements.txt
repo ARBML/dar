@@ -1,3 +1,8 @@
 py7zr
 soundfile
 librosa
+pandas
+bs4
+fsspec
+argparse
+datasets
