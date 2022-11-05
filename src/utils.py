@@ -1,11 +1,9 @@
-from unittest import skip
 import fsspec
 import re
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
-import pandas as pd
-from scipy.io.arff import loadarff 
-import zipfile, os
+import pandas as pd 
+import zipfile
 from glob import glob
 from .constants import *
 import json 
@@ -81,14 +79,6 @@ def read_json(paths, i, lines = False, json_key = ''):
     dfs.append(df)
   return pd.concat(dfs, axis = 1)
 
-def read_arff(paths, i):
-  dfs = []
-  for path_name in paths:
-    raw_data = loadarff(paths[path_name][i])
-    df = pd.DataFrame(raw_data[0])
-    dfs.append(df)
-  return pd.concat(dfs, axis = 1)
-
 def read_csv(paths, i, sep = ',', skiprows = 0):
   dfs = []
   for path_name in paths:
@@ -137,9 +127,6 @@ def get_df(type, paths, skiprows = 0, sep = ",", lines = False, json_key = '', c
 
     if type == 'jsonl' or type == 'json':
       df = read_json(paths, i, lines = lines, json_key = json_key)
-
-    if type == 'arff':
-      df = read_arff(paths, i)
 
     if type == 'wav':
       df = read_wav(paths, i)

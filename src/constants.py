@@ -2,7 +2,7 @@ TABS_1 = "\t"
 TABS_2 = "\t\t"
 TABS_3 = "\t\t\t"
 TABS_4 = "\t\t\t\t"
-valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'arff', 'wav', 'mp3']
+valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'wav', 'mp3']
 xml_code = f'''
 
 {TABS_1}def get_data(self, bs, column):
@@ -36,13 +36,6 @@ get_labels_from_path = f'''
 {TABS_2}for l in labels:
 {TABS_3}if l == label:
 {TABS_4}return label
-'''
-
-arff_code = f'''
-{TABS_1}def read_arff(self, filepath, skiprows):
-{TABS_2}raw_data = loadarff(filepath)
-{TABS_2}df_data = pd.DataFrame(raw_data[0])
-{TABS_2}return df_data
 '''
 
 extract_all_code = f'''
