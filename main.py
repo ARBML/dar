@@ -11,6 +11,7 @@ from src.split_code import get_split_code
 from src.squad_code import get_squad_code
 import argparse
 import os
+from huggingface_hub import login
 
 # Create the parser
 my_parser = argparse.ArgumentParser()
@@ -18,6 +19,8 @@ my_parser.add_argument('--pal','-paths_as_labels', action='store_true')
 my_parser.add_argument('--squad','-squad_link_dataset', action='store_true')
 my_parser.add_argument('--p','-save_pah', type = str, action='store', default = 'datasets')
 my_parser.add_argument('--hf','-hf_path', type = str, action='store', default = 'arbml')
+my_parser.add_argument('--t','-hf_token', type = str, action='store', default = 'arbml')
+
 args = my_parser.parse_args()
 
 dl_manager = DownloadManager()
@@ -161,5 +164,10 @@ dataset = load_dataset(f"{datasets_path}/{DATASET_NAME}")
 print(dataset)
 
 if input("push to hub: ") == 'y':
+  print('logging in ...')
+  try:
+    login(args.t)
+  except:
+    raise('Error: need to provide token using --t parameter')
   print('pushing to the hub') 
   dataset.push_to_hub(f"{args.hf}/{DATASET_NAME}")
