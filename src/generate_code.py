@@ -22,7 +22,11 @@ def get_generate_code(type, columns, labels, label_column_name, use_labels_from_
   if type == 'xlsx':
     pandas_df = TABS_3+f"df = pd.read_excel(open(filepath, 'rb'), skiprows = {skiprows}, header = {header})\n"
   elif type in ['csv', 'tsv']:
-    pandas_df = TABS_3+f"df = pd.read_csv(open(filepath, 'rb'), sep = r'{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
+    if sep == "tab":
+      pandas_df = TABS_3+f"df = pd.read_csv(open(filepath, 'rb'), sep = '\t', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
+    else:
+      pandas_df = TABS_3+f"df = pd.read_csv(open(filepath, 'rb'), sep = r'{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
+
   elif type == 'txt':
       pandas_df = TABS_3+f"df = self.read_txt(filepath, skiprows = {skiprows}, lines = {lines})\n"
       if len(alt_globs) > 1:

@@ -108,8 +108,11 @@ else:
   if type == 'csv':
     alt_sep = input(f"Set a separator for {type}: ")
     if alt_sep:
-      best_sep = alt_sep.replace('\\t','\\\\t')
-      df = get_df(type, download_data_path, 0, sep = best_sep)
+      best_sep = alt_sep
+      if alt_sep == "tab":
+        df = get_df(type, download_data_path, 0, sep = "\t")
+      else:
+        df = get_df(type, download_data_path, 0, sep = best_sep)
       print(df.head())
     else:
       print('using default separator ', {best_sep})
