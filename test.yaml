@@ -1,0 +1,18 @@
+pal: False
+squad: False
+datasets_path: "datasets"
+hf_path : "arbml"
+hf_token : ""
+dataset_name : "dummy"
+dataset_link: "https://github.com/ARBML/dar/blob/main/dummy/data_parallel.zip"
+alt_glob : ["glob('ar*.txt')", "glob('en*.txt')"]
+level : null 
+file_type : "txt"
+lines: True
+json_key : null 
+xml_columns : [] 
+alt_sep : ""
+skiprows: 0 
+header: null 
+new_columns: ["ar", "en"]
+label_column_name: ""

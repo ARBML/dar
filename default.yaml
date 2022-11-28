@@ -1,0 +1,19 @@
+pal: False
+squad: False
+datasets_path: 'datasets'
+hf_path : 'arbml'
+hf_token : ''
+dataset_name : ''
+dataset_link: ''
+alt_glob : []
+level : null 
+file_type : ''
+lines: False
+json_key : null 
+xml_columns : [] 
+alt_sep : ','
+skiprows: 0 
+header: null 
+new_columns: []
+label_column_name: ''
+
