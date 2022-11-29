@@ -1,3 +1,4 @@
 *.pyc
 datasets/dummy/*
 playground.ipynb
+.vscode/*

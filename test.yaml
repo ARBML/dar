@@ -10,9 +10,9 @@ level : null
 file_type : "txt"
 lines: True
 json_key : null 
-xml_columns : [] 
+xml_columns : "" 
 alt_sep : ""
 skiprows: 0 
 header: null 
-new_columns: ["ar", "en"]
+new_columns: "ar,en"
 label_column_name: ""

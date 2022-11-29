@@ -2,17 +2,17 @@ pal: False
 squad: False
 datasets_path: "datasets"
 hf_path : ""
+hf_token : ""
 dataset_name : "dummy"
-dataset_link: ""
+dataset_link: "https://github.com/ARBML/dar/blob/main/dummy/data.csv"
 alt_glob : []
 level : null 
-file_type : ""
-lines: False
+file_type : "csv"
+lines: True
 json_key : null 
 xml_columns : "" 
-alt_sep : ""
+alt_sep : ","
 skiprows: 0 
 header: null 
 new_columns: ""
-label_column_name: ""
-
+label_column_name: "gender"

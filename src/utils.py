@@ -23,7 +23,9 @@ def convert_link(links):
                 fs = fsspec.filesystem("github", org=user_name, repo=repo_name)
 
                 if fs.isdir(file_name):
-                    output = output + [base_path + f for f in fs.ls(f"{file_name}/")]
+                    output = output + [
+                        base_path + f for f in fs.ls(f"{file_name}/")
+                    ]
                 else:
                     output.append(base_path + file_name)
             else:
@@ -34,7 +36,8 @@ def convert_link(links):
             base = "https://drive.google.com/file/d/"
             trail = "/view"
             id = link.replace(trail, "").replace(base, "")
-            output.append(f"https://drive.google.com/uc?export=download&id={id}")
+            output.append(
+                f"https://drive.google.com/uc?export=download&id={id}")
         elif "docs.google" in link.lower():
             sheet_name = "Sheet1"
             sheet_id = link.split("/d/")[-1].split("/")[0]
@@ -46,7 +49,9 @@ def convert_link(links):
 
 
 def get_xml_data(bs, column):
-    elements = [attr[column] for attr in bs.find_all(attrs={column: re.compile(".")})]
+    elements = [
+        attr[column] for attr in bs.find_all(attrs={column: re.compile(".")})
+    ]
     if len(elements) == 0:
         elements = [el.text for el in bs.find_all(column)]
     return elements
@@ -88,9 +93,10 @@ def read_json(paths, i, lines=False, json_key=""):
 def read_csv(paths, i, sep=",", skiprows=0):
     dfs = []
     for path_name in paths:
-        df = pd.read_csv(
-            paths[path_name][i], sep=sep, skiprows=skiprows, error_bad_lines=False
-        )
+        df = pd.read_csv(paths[path_name][i],
+                         sep=sep,
+                         skiprows=skiprows,
+                         error_bad_lines=False)
         dfs.append(df)
 
     return pd.concat(dfs, axis=1)
@@ -99,8 +105,12 @@ def read_csv(paths, i, sep=",", skiprows=0):
 def read_wav(paths, i):
     dfs = []
     for path_name in paths:
-        if paths[path_name][i].endswith(".wav") or paths[path_name][i].endswith(".mp3"):
-            raw_data = {"path": [paths[path_name][i]], "audio": [paths[path_name][i]]}
+        if paths[path_name][i].endswith(
+                ".wav") or paths[path_name][i].endswith(".mp3"):
+            raw_data = {
+                "path": [paths[path_name][i]],
+                "audio": [paths[path_name][i]]
+            }
         else:
             raw_data = {"text": [open(paths[path_name][i]).read()]}
         df = pd.DataFrame(raw_data)
@@ -122,15 +132,20 @@ def read_txt(paths, i, skiprows=0, lines=True):
     for path_name in paths:
         if lines:
             df = pd.DataFrame(
-                open(paths[path_name][i], "r").read().splitlines()[skiprows:]
-            )
+                open(paths[path_name][i], "r").read().splitlines()[skiprows:])
         else:
             df = pd.DataFrame([open(paths[path_name][i], "r").read()])
         dfs.append(df)
-    return pd.concat(dfs, axis=1)
+    return pd.concat(dfs, axis=1, ignore_index=True)
 
 
-def get_df(type, paths, skiprows=0, sep=",", lines=False, json_key="", columns=None):
+def get_df(type,
+           paths,
+           skiprows=0,
+           sep=",",
+           lines=False,
+           json_key="",
+           columns=None):
     dfs = []
 
     for i, _ in enumerate(paths["inputs"]):
@@ -157,7 +172,7 @@ def get_df(type, paths, skiprows=0, sep=",", lines=False, json_key="", columns=N
             df.columns = dfs[-1].columns
 
         dfs.append(df)
-    return pd.concat(dfs)
+    return pd.concat(dfs, ignore_index=True)
 
 
 def get_split_user(split_files):
