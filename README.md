@@ -9,12 +9,18 @@ _dar_ or _دار_ which means house in Araibc is a simple semi-supervised approa
 <video src='https://user-images.githubusercontent.com/15667714/200085495-f92d566b-6aee-430c-b7e0-e4a5da00ee27.mp4'></video>
 
 
-## Script
+## Scripts
 
+### Command line
 The main script can be ran using the following commands 
 
 ```bash
 python main.py
+```
+
+### streamlit 
+```bash
+streamlit run app.py
 ```
 
 ## Arguments 

@@ -11,6 +11,20 @@ from src.generate_code import get_generate_code
 from src.imports_code import get_imports_code
 from src.split_code import get_split_code
 from src.squad_code import get_squad_code
+from PIL import Image
+
+
+def insert_image(img_path, caption):
+    col1, col2, col3 = st.columns([1, 3, 1])
+
+    with col1:
+        st.write("")
+
+    with col2:
+        st.image(img_path, caption=caption)
+
+    with col3:
+        st.write("")
 
 
 def get_input(input_text,
@@ -68,6 +82,8 @@ label_column_name = ""
 file_urls = ""
 header = None
 pal = False
+
+insert_image('logo.png', caption='dar: build datasets by answering questions')
 
 uploaded_file = st.file_uploader("Load yaml file: ")
 if uploaded_file:
@@ -309,7 +325,7 @@ elif dataset_link:
         dataset = load_dataset(f"{datasets_path}/{dataset_name}")
         hf_path = get_input("HF path", config, "hf_path")
         st.write(dataset)
-        token = st.text_input("Hf token")
+        token = st.text_input("Hf token", type="password")
         if token and st.button('Upload'):
             login(token)
             if hf_path:
