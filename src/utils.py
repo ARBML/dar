@@ -57,8 +57,8 @@ def get_xml_data(bs, column):
     return elements
 
 
-def read_xml(paths, i, columns=None):
-    if columns is None:
+def read_xml(paths, i, columns=""):
+    if not columns:
         tree = ET.parse(paths["inputs"][i])
         root = tree.getroot()
         xml_string = ET.tostring(root, encoding="unicode", method="xml")

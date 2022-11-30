@@ -49,8 +49,10 @@ def get_input(input_text,
         result = st.selectbox(input_text,
                               options=valid_seps,
                               index=valid_seps.index(default_value))
-    elif value in ["header", "lines", "pal"]:
+    elif value in ["header", "lines"]:
         result = st.radio(input_text, (True, False))
+    elif value == "pal":
+        result = st.radio(input_text, (False, True))
     elif value == "label_column_name":
         columns = [""] + list(label_columns)
         result = st.selectbox(input_text,
@@ -58,9 +60,14 @@ def get_input(input_text,
                               index=columns.index(default_value))
     elif value == "skiprows":
         result = st.number_input(input_text, value=0)
+    elif value == "level":
+        result = st.number_input(input_text,
+                                 value=-1,
+                                 min_value=-3,
+                                 max_value=-1)
     elif value == "alt_glob" and glob_idx >= 0:
         if glob_idx >= len(default_value):
-            result = ""
+            result = st.text_input(input_text, key=key)
         else:
             result = st.text_input(input_text,
                                    default_value[glob_idx],
@@ -119,13 +126,12 @@ alt_glob = ""
 
 if zipped:
     try:
-        download_data_path = dl_manager.download_and_extract(file_urls)[0]
+        zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
     except:
         file_urls = [dataset_link]
-        download_data_path = dl_manager.download_and_extract(file_urls)[0]
-    zip_base_dir = download_data_path
+        zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
+
     extract_all(zip_base_dir)
-    download_data_path = {}
     download_data_path["inputs"] = get_valid_files(zip_base_dir)
     st.write(download_data_path)
     alt_glob = get_input("Input glob structure: ",
@@ -160,25 +166,29 @@ if zipped:
             config,
             "level",
         )
-        level = None if level is None else int(level)
-        config["level"] = level
 
-        if level == -1:
-            label_names = list(
-                set([
-                    path.split("/")[-1]
-                    for path in download_data_path["inputs"]
-                ]))
-            label_names = list(set([lbl.split(".")[-2]
-                                    for lbl in label_names]))
-        else:
-            label_names = list(
-                set([
-                    path.split("/")[level:level + 1][0]
-                    for path in download_data_path["inputs"]
-                ]))
-elif dataset_link:
+        if level:
+            level = int(level)
+            config["level"] = level
+            if level == -1:
+                label_names = list(
+                    set([
+                        path.split("/")[-1]
+                        for path in download_data_path["inputs"]
+                    ]))
+                label_names = list(
+                    set([lbl.split(".")[-2] for lbl in label_names]))
+            else:
+                label_names = list(
+                    set([
+                        path.split("/")[level:level + 1][0]
+                        for path in download_data_path["inputs"]
+                    ]))
+            st.write(label_names)
+else:
     download_data_path["inputs"] = dl_manager.download(file_urls)
+
+if dataset_link:
     split_code = get_split_code(file_urls, download_data_path, zip_base_dir,
                                 alt_globs)
 
@@ -191,6 +201,14 @@ elif dataset_link:
     best_sep = ","
 
     if file_type:
+        df = get_df(
+            file_type,
+            download_data_path,
+            lines=lines,
+            json_key=json_key,
+            columns=xml_columns,
+        )
+        st.write(df.head())
         if file_type in ["json", "txt"]:
             lines = get_input("set lines: ", config, "lines")
             if lines:
@@ -211,16 +229,6 @@ elif dataset_link:
                 config["xml_columns"] = xml_columns
                 xml_columns = xml_columns.split(",")
 
-        df = get_df(
-            file_type,
-            download_data_path,
-            lines=lines,
-            json_key=json_key,
-            columns=xml_columns,
-        )
-        print(df)
-        st.write(df.head())
-
         if file_type == "csv":
             alt_sep = get_input(f"Set a separator for {file_type}: ", config,
                                 "alt_sep")
@@ -229,6 +237,15 @@ elif dataset_link:
                 best_sep = alt_sep
                 df = get_df(file_type, download_data_path, 0, sep=best_sep)
                 st.write(df.head())
+        else:
+            df = get_df(
+                file_type,
+                download_data_path,
+                lines=lines,
+                json_key=json_key,
+                columns=xml_columns,
+            )
+            st.write(df.head())
 
         skiprows = get_input("Enter rows to skip: ", config, "skiprows")
         if skiprows:
@@ -320,8 +337,10 @@ elif dataset_link:
             yaml.dump(config, outfile, default_flow_style=False)
 
         dataset = load_dataset(f"{datasets_path}/{dataset_name}")
-        hf_path = get_input("HF path", config, "hf_path")
         st.write(dataset)
+        st.write(dataset['train'][0])
+        hf_path = get_input("HF path", config, "hf_path")
+
         token = st.text_input("Hf token", type="password")
         if token and st.button('Upload'):
             login(token)
