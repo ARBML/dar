@@ -227,10 +227,7 @@ elif dataset_link:
             if alt_sep:
                 config["alt_sep"] = alt_sep
                 best_sep = alt_sep
-                if alt_sep == "tab":
-                    df = get_df(file_type, download_data_path, 0, sep="\t")
-                else:
-                    df = get_df(file_type, download_data_path, 0, sep=best_sep)
+                df = get_df(file_type, download_data_path, 0, sep=best_sep)
                 st.write(df.head())
 
         skiprows = get_input("Enter rows to skip: ", config, "skiprows")

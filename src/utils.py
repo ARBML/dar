@@ -93,10 +93,17 @@ def read_json(paths, i, lines=False, json_key=""):
 def read_csv(paths, i, sep=",", skiprows=0):
     dfs = []
     for path_name in paths:
-        df = pd.read_csv(paths[path_name][i],
-                         sep=sep,
-                         skiprows=skiprows,
-                         error_bad_lines=False)
+        if sep == "tab":
+            df = pd.read_csv(paths[path_name][i],
+                             sep=r'\\t',
+                             skiprows=skiprows,
+                             error_bad_lines=False,
+                             engine='python')
+        else:
+            df = pd.read_csv(paths[path_name][i],
+                             sep=sep,
+                             skiprows=skiprows,
+                             error_bad_lines=False)
         dfs.append(df)
 
     return pd.concat(dfs, axis=1)
