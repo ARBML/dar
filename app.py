@@ -11,7 +11,6 @@ from src.generate_code import get_generate_code
 from src.imports_code import get_imports_code
 from src.split_code import get_split_code
 from src.squad_code import get_squad_code
-from PIL import Image
 
 
 def insert_image(img_path, caption):
@@ -51,7 +50,7 @@ def get_input(input_text,
                               index=valid_seps.index(default_value))
     elif value in ["header", "lines"]:
         result = st.radio(input_text, (True, False))
-    elif value == "pal":
+    elif value in ["pal", "local_dir"]:
         result = st.radio(input_text, (False, True))
     elif value == "label_column_name":
         columns = [""] + list(label_columns)
@@ -113,7 +112,12 @@ if dataset_name:
     main_class_code = get_class_code(dataset_name)
     config["dataset_name"] = dataset_name
 
-dataset_link = get_input("Dataset Link: ", config, "dataset_link")
+local_dir = get_input("Local Dir ", config, "local_dir")
+if local_dir:
+    config["local_dir"] = local_dir
+else:
+    local_dir = False
+dataset_link = get_input("Dataset Link/Dir ", config, "dataset_link")
 
 if dataset_link:
     file_urls = convert_link(dataset_link)
@@ -132,6 +136,7 @@ if zipped:
         zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
 
     extract_all(zip_base_dir)
+    st.write(zip_base_dir)
     download_data_path["inputs"] = get_valid_files(zip_base_dir)
     st.write(download_data_path)
     alt_glob = get_input("Input glob structure: ",
@@ -189,8 +194,11 @@ else:
     download_data_path["inputs"] = dl_manager.download(file_urls)
 
 if dataset_link:
-    split_code = get_split_code(file_urls, download_data_path, zip_base_dir,
-                                alt_globs)
+    split_code = get_split_code(file_urls,
+                                download_data_path,
+                                zip_base_dir,
+                                alt_globs,
+                                local_dir=local_dir)
 
     file_type = get_input("Enter the type: ", config, "file_type")
     config["file_type"] = file_type

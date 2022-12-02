@@ -1,5 +1,6 @@
 pal: False
 squad: False
+local_dir: False
 datasets_path: "datasets"
 hf_path : ""
 dataset_name : "dummy"
