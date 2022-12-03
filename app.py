@@ -68,8 +68,13 @@ def get_input(input_text,
         if glob_idx >= len(default_value):
             result = st.text_input(input_text, key=key)
         else:
+            if glob_idx == 0:
+                key = "inputs"
+            else:
+                key = f"targets{glob_idx}"
+
             result = st.text_input(input_text,
-                                   default_value[glob_idx],
+                                   default_value[glob_idx][key],
                                    key=key)
     else:
         result = st.text_input(input_text, default_value)
@@ -122,6 +127,7 @@ dataset_link = get_input("Dataset Link/Dir ", config, "dataset_link")
 is_dir = False
 if os.path.isdir(dataset_link):
     is_dir = True
+    config["local_dir"] = True
 
 if dataset_link:
     file_urls = convert_link(dataset_link)
@@ -170,7 +176,8 @@ if zipped or is_dir:
                              "alt_glob",
                              glob_idx=i,
                              key=i)
-
+    else:
+        config["alt_glob"] = alt_globs
     pal = get_input("path as labels ", config, "pal")
     if pal:
         level = get_input(
