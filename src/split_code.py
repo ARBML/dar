@@ -2,7 +2,12 @@ from .constants import *
 import os
 
 
-def get_split_code(urls, files, zip_base_dir, alt_globs=[], local_dir=False):
+def get_split_code(urls,
+                   files,
+                   zip_base_dir,
+                   alt_globs=[],
+                   local_dir=False,
+                   is_dir=False):
     MAIN_SPLITS = {
         "train": "TRAIN",
         "test": "TEST",
@@ -15,9 +20,11 @@ def get_split_code(urls, files, zip_base_dir, alt_globs=[], local_dir=False):
         body = TABS_2 + f"url = [os.path.abspath('{urls[0]}')]\n"
     else:
         body = TABS_2 + f"url = {urls}\n"
-    if len(zip_base_dir) > 0:
+    if len(zip_base_dir) > 0 and not is_dir:
         body += TABS_2 + f"downloaded_files = dl_manager.download_and_extract(url)\n"
         body += TABS_2 + "self.extract_all(downloaded_files[0])\n"
+    elif is_dir:
+        body += TABS_2 + f"downloaded_files = url\n"
     else:
         body += TABS_2 + f"downloaded_files = dl_manager.download(url)\n"
 

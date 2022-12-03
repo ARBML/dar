@@ -119,6 +119,10 @@ else:
     local_dir = False
 dataset_link = get_input("Dataset Link/Dir ", config, "dataset_link")
 
+is_dir = False
+if os.path.isdir(dataset_link):
+    is_dir = True
+
 if dataset_link:
     file_urls = convert_link(dataset_link)
     zipped = any([
@@ -128,14 +132,17 @@ if dataset_link:
 
 alt_glob = ""
 
-if zipped:
-    try:
-        zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
-    except:
-        file_urls = [dataset_link]
-        zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
+if zipped or is_dir:
+    if zipped:
+        try:
+            zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
+        except:
+            file_urls = [dataset_link]
+            zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
+        extract_all(zip_base_dir)
+    else:
+        zip_base_dir = file_urls[0]
 
-    extract_all(zip_base_dir)
     st.write(zip_base_dir)
     download_data_path["inputs"] = get_valid_files(zip_base_dir)
     st.write(download_data_path)
@@ -198,7 +205,8 @@ if dataset_link:
                                 download_data_path,
                                 zip_base_dir,
                                 alt_globs,
-                                local_dir=local_dir)
+                                local_dir=local_dir,
+                                is_dir=is_dir)
 
     file_type = get_input("Enter the type: ", config, "file_type")
     config["file_type"] = file_type
