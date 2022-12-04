@@ -117,12 +117,12 @@ if dataset_name:
     main_class_code = get_class_code(dataset_name)
     config["dataset_name"] = dataset_name
 
-local_dir = get_input("Local Dir ", config, "local_dir")
+local_dir = get_input("Local Directory ", config, "local_dir")
 if local_dir:
     config["local_dir"] = local_dir
 else:
     local_dir = False
-dataset_link = get_input("Dataset Link/Dir ", config, "dataset_link")
+dataset_link = get_input("Dataset Link or Directory ", config, "dataset_link")
 
 is_dir = False
 if os.path.isdir(dataset_link):
@@ -358,8 +358,11 @@ if dataset_link:
              "w").write(code)
         with open(saved_yaml_file, "w") as outfile:
             yaml.dump(config, outfile, default_flow_style=False)
-
-        dataset = load_dataset(f"{datasets_path}/{dataset_name}")
+        if local_dir:
+            dataset = load_dataset(f"{datasets_path}/{dataset_name}",
+                                   data_dir=dataset_link)
+        else:
+            dataset = load_dataset(f"{datasets_path}/{dataset_name}")
         st.write(dataset)
         st.write(dataset['train'][0])
         hf_path = get_input("HF path", config, "hf_path")

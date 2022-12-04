@@ -17,14 +17,14 @@ def get_split_code(urls,
     }
     func_name = "def _split_generators(self, dl_manager):\n"
     if local_dir:
-        body = TABS_2 + f"url = [os.path.abspath('{urls[0]}')]\n"
+        body = TABS_2 + f"url = [os.path.abspath(os.path.expanduser(dl_manager.manual_dir))]\n"
     else:
         body = TABS_2 + f"url = {urls}\n"
-    if len(zip_base_dir) > 0 and not is_dir:
+    if local_dir:
+        body += TABS_2 + f"downloaded_files = url\n"
+    elif len(zip_base_dir) > 0:
         body += TABS_2 + f"downloaded_files = dl_manager.download_and_extract(url)\n"
         body += TABS_2 + "self.extract_all(downloaded_files[0])\n"
-    elif is_dir:
-        body += TABS_2 + f"downloaded_files = url\n"
     else:
         body += TABS_2 + f"downloaded_files = dl_manager.download(url)\n"
 
