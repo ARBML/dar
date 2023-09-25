@@ -77,7 +77,7 @@ def get_generate_code(type,
             loop_body += f",'label':str(label)"
         else:
             loop_body += f",'label':str(record['{label_column_name}'])"
-            columns.remove(label_column_name)
+            # columns.remove(label_column_name)
 
     loop_body += "}\n"
     loop_body += TABS_4 + "_id += 1 \n"

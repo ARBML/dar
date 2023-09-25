@@ -7,6 +7,7 @@ import zipfile
 from glob import glob
 from .constants import *
 import json
+from huggingface_hub import HfApi
 
 
 def convert_link(links):
@@ -211,3 +212,13 @@ def get_valid_files(zip_base_dir):
     for ext in valid_file_ext:
         files += glob(f"{zip_base_dir}/**/**.{ext}", recursive=True)
     return files
+
+def upload_file(path, repo_id):
+    api = HfApi()
+    path_in_repo = path.split("/")[-1]
+    api.upload_file(
+        path_or_fileobj=path,
+        path_in_repo=path_in_repo,
+        repo_id=repo_id,
+        repo_type="dataset",
+    )

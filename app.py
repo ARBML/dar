@@ -11,8 +11,17 @@ from src.generate_code import get_generate_code
 from src.imports_code import get_imports_code
 from src.split_code import get_split_code
 from src.squad_code import get_squad_code
+from urllib.parse import urlparse
+from huggingface_hub import HfApi
 
-
+# https://stackoverflow.com/questions/7160737/how-to-validate-a-url-in-python-malformed-or-not
+def is_url(url):
+  try:
+    result = urlparse(url)
+    return all([result.scheme, result.netloc])
+  except ValueError:
+    return False
+  
 def insert_image(img_path, caption):
     col1, col2, col3 = st.columns([1, 3, 1])
 
@@ -27,44 +36,46 @@ def insert_image(img_path, caption):
 
 
 def get_input(input_text,
-              config,
-              value,
+              config_key,
               glob_idx=-1,
               default_value="",
               label_columns=[],
               key=0):
-    global load_from_config
+    
+    if st.session_state.load_config:
+        default_value = st.session_state.config[config_key]
 
-    config_value = config[value]
-    default_value = config_value
+    if type(default_value) == list:
+        default_value = ",".join(default_value)
 
-    if value == "file_type":
+    if config_key == "file_type":
         valid_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav")
         result = st.selectbox(input_text,
                               options=valid_types,
                               index=valid_types.index(default_value))
-    elif value == "alt_sep":
+    elif config_key == "alt_sep":
         valid_seps = ("", ",", ";", "|", "tab")
         result = st.selectbox(input_text,
                               options=valid_seps,
                               index=valid_seps.index(default_value))
-    elif value in ["header", "lines"]:
+    elif config_key in ["header", "lines"]:
         result = st.radio(input_text, (True, False))
-    elif value in ["pal", "local_dir"]:
+    elif config_key in ["pal", "local_dir"]:
         result = st.radio(input_text, (False, True))
-    elif value == "label_column_name":
+    elif config_key == "label_column_name":
         columns = [""] + list(label_columns)
+        index = columns.index(default_value) if default_value in columns else 0
         result = st.selectbox(input_text,
                               columns,
-                              index=columns.index(default_value))
-    elif value == "skiprows":
+                              index=index)
+    elif config_key == "skiprows":
         result = st.number_input(input_text, value=0)
-    elif value == "level":
+    elif config_key == "level":
         result = st.number_input(input_text,
                                  value=-1,
                                  min_value=-3,
                                  max_value=-1)
-    elif value == "alt_glob" and glob_idx >= 0:
+    elif config_key == "alt_glob" and glob_idx >= 0:
         if glob_idx >= len(default_value):
             result = st.text_input(input_text, key=key)
         else:
@@ -81,186 +92,165 @@ def get_input(input_text,
     return result
 
 
-dataset_link = ""
-zipped = False
-label_names = None
-zip_base_dir = ""
-alt_globs = []
-xml_columns = ""
-level = None
-download_data_path = {}
-label_column_name = ""
-file_urls = ""
-header = None
-pal = False
+if "config" not in st.session_state:
+        with open("default.yaml", "r") as f:
+            st.session_state.config = yaml.safe_load(f)
 
-insert_image('logo.png', caption='dar: build datasets by answering questions')
+if "load_config" not in st.session_state:
+    st.session_state.load_config = False 
 
-uploaded_file = st.file_uploader("Load yaml file: ")
-if uploaded_file:
-    config = yaml.load(uploaded_file.read())
-else:
-    with open("default.yaml", "r") as f:
-        config = yaml.safe_load(f)
+def main():
+    # Register your pages
+    pages = {
+        "Dataset Creation": page_first,
+        "Dataset README": page_second,
+    }
 
-dl_manager = DownloadManager()
+    st.sidebar.title("Dar")
 
-datasets_path = ""
+    # Widget to select your page, you can choose between radio buttons or a selectbox
+    page = st.sidebar.radio("Select a choice", tuple(pages.keys()))
 
-dataset_name = get_input("Dataset Name: ", config, "dataset_name")
-saved_yaml_file = f"{config['datasets_path']}/{dataset_name}/config.yaml"
-if dataset_name:
-    if os.path.isfile(saved_yaml_file):
-        st.write(f"loading yaml from {saved_yaml_file}")
-        with open(saved_yaml_file, "r") as f:
-            config = yaml.safe_load(f)
-    main_class_code = get_class_code(dataset_name)
-    config["dataset_name"] = dataset_name
+    # Display the selected page
+    pages[page]()
 
-local_dir = get_input("Local Directory ", config, "local_dir")
-if local_dir:
-    config["local_dir"] = local_dir
-else:
+def page_first():
+    st.title("Dataset Creation")
+    dataset_link = ""
+    zipped = False
+    label_names = None
+    zip_base_dir = ""
+    alt_globs = []
+    xml_columns = ""
+    level = None
+    download_data_path = {}
+    label_column_name = ""
+    file_urls = ""
+    header = None
+    pal = False
+    alt_glob = ""
+    config = {}
+
+
+    insert_image('logo.png', caption='dar: build datasets by answering questions')
+
+    uploaded_file = st.file_uploader("Load yaml file: ")
+    if uploaded_file:
+        st.session_state.config = yaml.load(uploaded_file.read())
+        st.session_state.load_config = True
+
+    dl_manager = DownloadManager()
+
+    datasets_path = ""
+
+    dataset_name = get_input("Dataset Name: ", "dataset_name")
+
+    if dataset_name:
+        main_class_code = get_class_code(dataset_name)
+        config["dataset_name"] = dataset_name
+
+
+    dataset_link = get_input("Dataset Link or Directory ", "dataset_link")
+
+    is_dir = False
     local_dir = False
-dataset_link = get_input("Dataset Link or Directory ", config, "dataset_link")
 
-is_dir = False
-if os.path.isdir(dataset_link):
-    is_dir = True
-    config["local_dir"] = True
+    if dataset_link:
+        if not is_url(dataset_link):
+            local_dir = True
+            config["local_dir"] = local_dir
 
-if dataset_link:
-    file_urls = convert_link(dataset_link)
-    zipped = any([
-        ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive"]
-    ])
-    config["dataset_link"] = dataset_link
+        if os.path.isdir(dataset_link):
+            is_dir = True
 
-alt_glob = ""
-
-if zipped or is_dir:
-    if zipped:
-        try:
-            zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
-        except:
-            file_urls = [dataset_link]
-            zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
-        extract_all(zip_base_dir)
-    else:
-        zip_base_dir = file_urls[0]
-
-    st.write(zip_base_dir)
-    download_data_path["inputs"] = get_valid_files(zip_base_dir)
-    st.write(download_data_path)
-    alt_glob = get_input("Input glob structure: ",
-                         config,
-                         "alt_glob",
-                         glob_idx=0)
-    i = 1
-    while alt_glob:
-
-        if len(alt_globs) == 0:
-            download_data_path["inputs"] = eval(
-                alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
-            download_data_path["inputs"].sort()
-            alt_globs.append({"inputs": alt_glob})
-        else:
-
-            download_data_path[f"targets{i}"] = eval(
-                alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
-            download_data_path[f"targets{i}"].sort()
-            alt_globs.append({f"targets{i}": alt_glob})
-            i += 1
-        alt_glob = get_input("Enter a target structure: ",
-                             config,
-                             "alt_glob",
-                             glob_idx=i,
-                             key=i)
-    else:
-        config["alt_glob"] = alt_globs
-    pal = get_input("path as labels ", config, "pal")
-    if pal:
-        level = get_input(
-            "level for the labels: ",
-            config,
-            "level",
-        )
-
-        if level:
-            level = int(level)
-            config["level"] = level
-            if level == -1:
-                label_names = list(
-                    set([
-                        path.split("/")[-1]
-                        for path in download_data_path["inputs"]
-                    ]))
-                label_names = list(
-                    set([lbl.split(".")[-2] for lbl in label_names]))
+        file_urls = convert_link(dataset_link)
+        zipped = any([
+            ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive"]
+        ])
+        config["dataset_link"] = dataset_link
+        if zipped or is_dir:
+            if zipped:
+                try:
+                    zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
+                except:
+                    file_urls = [dataset_link]
+                    zip_base_dir = dl_manager.download_and_extract(file_urls)[0]
+                extract_all(zip_base_dir)
             else:
-                label_names = list(
-                    set([
-                        path.split("/")[level:level + 1][0]
-                        for path in download_data_path["inputs"]
-                    ]))
-            st.write(label_names)
-else:
-    download_data_path["inputs"] = dl_manager.download(file_urls)
+                zip_base_dir = file_urls[0]
 
-if dataset_link:
-    split_code = get_split_code(file_urls,
-                                download_data_path,
-                                zip_base_dir,
-                                alt_globs,
-                                local_dir=local_dir,
-                                is_dir=is_dir)
+            st.write(zip_base_dir)
+            download_data_path["inputs"] = get_valid_files(zip_base_dir)
+            st.write(download_data_path)
+            alt_glob = get_input("Input glob structure: ",
+                                "alt_glob",
+                                glob_idx=0)
+            i = 1
+            while alt_glob:
 
-    file_type = get_input("Enter the type: ", config, "file_type")
-    config["file_type"] = file_type
-    # file types paramters
-    lines = False
-    json_key = ""
-    columns = []
-    best_sep = ","
+                if len(alt_globs) == 0:
+                    download_data_path["inputs"] = eval(
+                        alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+                    download_data_path["inputs"].sort()
+                    alt_globs.append({"inputs": alt_glob})
+                else:
 
-    if file_type:
-        df = get_df(
-            file_type,
-            download_data_path,
-            lines=lines,
-            json_key=json_key,
-            columns=xml_columns,
-        )
-        st.write(df.head())
-        if file_type in ["json", "txt"]:
-            lines = get_input("set lines: ", config, "lines")
-            if lines:
-                config["lines"] = lines
+                    download_data_path[f"targets{i}"] = eval(
+                        alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+                    download_data_path[f"targets{i}"].sort()
+                    alt_globs.append({f"targets{i}": alt_glob})
+                    i += 1
+                alt_glob = get_input("Enter a target structure: ",
+                                    "alt_glob",
+                                    glob_idx=i,
+                                    key=i)
+            else:
+                config["alt_glob"] = alt_globs
+            pal = get_input("path as labels ", "pal")
+            if pal:
+                level = get_input(
+                    "level for the labels: ",
+                    "level",
+                )
 
-        if file_type == "json":
-            json_key = get_input("set json key: ", config, "json_key")
-            if json_key:
-                config["json_key"] = json_key
-
-        if file_type == "xml":
-            xml_columns = get_input(
-                "Enter xml columns: ",
-                config,
-                "xml_columns",
-            )
-            if xml_columns:
-                config["xml_columns"] = xml_columns
-                xml_columns = xml_columns.split(",")
-
-        if file_type == "csv":
-            alt_sep = get_input(f"Set a separator for {file_type}: ", config,
-                                "alt_sep")
-            if alt_sep:
-                config["alt_sep"] = alt_sep
-                best_sep = alt_sep
-                df = get_df(file_type, download_data_path, 0, sep=best_sep)
-                st.write(df.head())
+                if level:
+                    level = int(level)
+                    config["level"] = level
+                    if level == -1:
+                        label_names = list(
+                            set([
+                                path.split("/")[-1]
+                                for path in download_data_path["inputs"]
+                            ]))
+                        label_names = list(
+                            set([lbl.split(".")[-2] for lbl in label_names]))
+                    else:
+                        label_names = list(
+                            set([
+                                path.split("/")[level:level + 1][0]
+                                for path in download_data_path["inputs"]
+                            ]))
+                    st.write(label_names)
         else:
+            download_data_path["inputs"] = dl_manager.download(file_urls)
+
+    if dataset_link:
+        split_code = get_split_code(file_urls,
+                                    download_data_path,
+                                    zip_base_dir,
+                                    alt_globs,
+                                    local_dir=local_dir,
+                                    is_dir=is_dir)
+
+        file_type = get_input("Enter the type: ", "file_type")
+        config["file_type"] = file_type
+        # file types paramters
+        lines = False
+        json_key = ""
+        columns = []
+        best_sep = ","
+
+        if file_type:
             df = get_df(
                 file_type,
                 download_data_path,
@@ -269,107 +259,208 @@ if dataset_link:
                 columns=xml_columns,
             )
             st.write(df.head())
+            if file_type in ["json", "txt"]:
+                lines = get_input("set lines: ", "lines")
+                if lines:
+                    config["lines"] = lines
 
-        skiprows = get_input("Enter rows to skip: ", config, "skiprows")
-        if skiprows:
-            skiprows = int(skiprows)
-            config["skiprows"] = skiprows
+            if file_type == "json":
+                json_key = get_input("set json key: ", "json_key")
+                if json_key:
+                    config["json_key"] = json_key
 
-            if skiprows != 0:
+            if file_type == "xml":
+                xml_columns = get_input(
+                    "Enter xml columns: ",
+                    "xml_columns",
+                )
+                if xml_columns:
+                    config["xml_columns"] = xml_columns
+                    xml_columns = xml_columns.split(",")
+
+            if file_type == "csv":
+                alt_sep = get_input(f"Set a separator for {file_type}: ",
+                                    "alt_sep")
+                if alt_sep:
+                    config["alt_sep"] = alt_sep
+                    best_sep = alt_sep
+                    df = get_df(file_type, download_data_path, 0, sep=best_sep)
+                    st.write(df.head())
+            else:
                 df = get_df(
                     file_type,
                     download_data_path,
-                    skiprows=skiprows,
-                    sep=best_sep,
                     lines=lines,
                     json_key=json_key,
+                    columns=xml_columns,
                 )
                 st.write(df.head())
 
-        columns = list(df.columns)
+            skiprows = get_input("Enter rows to skip: ", "skiprows")
+            if skiprows:
+                skiprows = int(skiprows)
+                config["skiprows"] = skiprows
 
-        if file_type in ["wav", "xml", "json"]:
-            header = 0
-        else:
-            header = get_input(
-                "Columns has a header: ",
-                config,
-                "header",
+                if skiprows != 0:
+                    df = get_df(
+                        file_type,
+                        download_data_path,
+                        skiprows=skiprows,
+                        sep=best_sep,
+                        lines=lines,
+                        json_key=json_key,
+                    )
+                    st.write(df.head())
+
+            columns = list(df.columns)
+            columns = [str(c) for c in columns]
+
+            if file_type in ["wav", "xml", "json"]:
+                header = 0
+            else:
+                header = get_input(
+                    "Columns has a header: ",
+                    "header",
+                )
+                if header:
+                    config["header"] = header
+                    header = 0 if header else None
+
+            new_columns = get_input("Enter new columns separated by comma: ","new_columns")
+            if new_columns:
+                new_columns = new_columns.split(
+                    ",") if type(new_columns) != list else new_columns
+                config["new_columns"] = new_columns
+                st.write(new_columns)
+
+                if len(new_columns) > 0:
+                    columns = new_columns
+                df.columns = columns
+                st.write(df.head())
+
+            if not pal:
+
+                label_column_name = get_input("Enter label column name: ",
+                                            "label_column_name",
+                                            label_columns=df.columns)
+                config["label_column_name"] = label_column_name
+
+            if label_column_name:
+                label_names = list(set(df[label_column_name]))
+                st.write(label_names)
+                st.write(config["new_columns"])
+
+            generate_code = get_generate_code(
+                file_type,
+                columns,
+                label_names,
+                label_column_name,
+                skiprows=skiprows if skiprows else 0,
+                use_labels_from_path=pal,
+                sep=best_sep if best_sep else ",",
+                header=header if header else 0,
+                lines=True if lines else False,
+                json_key=json_key if json_key else "",
+                level=level if level else None,
+                alt_globs=alt_globs,
             )
-            if header:
-                config["header"] = header
-                header = 0 if header else None
 
-        new_columns = get_input("Enter new columns separated by comma: ",
-                                config, "new_columns")
-        if new_columns:
-            new_columns = new_columns.split(
-                ",") if type(new_columns) != list else new_columns
-            config["new_columns"] = new_columns
+            import_code = get_imports_code(file_type)
+            features_code = get_features_code([c for c in columns if c != label_column_name], label_names)
 
-            if len(new_columns) > 0:
-                columns = new_columns
-            df.columns = columns
-            st.write(df.head())
+            # generate code and load the dataset
+            code = import_code + main_class_code + features_code + split_code + generate_code
+            datasets_path = get_input("Save Directory: ",
+                                    "datasets_path",
+                                    default_value="datasets")
+            if datasets_path:
+                config["datasets_path"] = datasets_path
+            else:
+                datasets_path = st.session_state.config["datasets_path"]
 
-        if not pal:
-            label_column_name = get_input("Enter label column name: ",
-                                          config,
-                                          "label_column_name",
-                                          label_columns=df.columns)
-            config["label_column_name"] = label_column_name
+            saved = st.button('Save')
 
-        if label_column_name:
-            label_names = list(set(df[label_column_name]))
-            print(label_names)
+            if saved:
+                os.makedirs(f"{datasets_path}/{dataset_name}", exist_ok=True)
+                saved_yaml_file = f"{datasets_path}/{dataset_name}/config.yaml"
+                open(f"{datasets_path}/{dataset_name}/{dataset_name}.py",
+                "w").write(code)
+                for key_config in st.session_state.config:
+                    if key_config not in config:
+                        config[key_config] = st.session_state.config[key_config]
+                st.write(config)
+                with open(saved_yaml_file, "w") as outfile:
+                    yaml.dump(config, outfile, default_flow_style=False)
 
-        generate_code = get_generate_code(
-            file_type,
-            columns,
-            label_names,
-            label_column_name,
-            skiprows=skiprows if skiprows else 0,
-            use_labels_from_path=pal,
-            sep=best_sep if best_sep else ",",
-            header=header if header else 0,
-            lines=True if lines else False,
-            json_key=json_key if json_key else "",
-            level=level if level else None,
-            alt_globs=alt_globs,
-        )
 
-        import_code = get_imports_code(file_type)
-        features_code = get_features_code(columns, label_names)
+            hf_path = get_input("HF path", "hf_path")
+            token = st.text_input("Hf token", type="password")    
+            if  token and hf_path:
+                login(token)
+                upload = st.button('Upload')
+                if upload:
+                    if local_dir:
+                        dataset = load_dataset(f"{datasets_path}/{dataset_name}",
+                                        data_dir=dataset_link)
+                    else:
+                        dataset = load_dataset(f"{datasets_path}/{dataset_name}")
+                    st.write(dataset)
+                    st.write(dataset['train'][0])
+                    dataset.push_to_hub(f"{hf_path}/{dataset_name}")
+                    upload_file(f"{datasets_path}/{dataset_name}/README.md", repo_id=f"{hf_path}/{dataset_name}")
+                    upload_file(f"{datasets_path}/{dataset_name}/{dataset_name}.py", repo_id=f"{hf_path}/{dataset_name}")
+                    upload_file(f"{datasets_path}/{dataset_name}/config.yaml", repo_id=f"{hf_path}/{dataset_name}")
+                    st.write("uploaded!")
+            
+            
 
-        # generate code and load the dataset
-        code = import_code + main_class_code + features_code + split_code + generate_code
-        datasets_path = get_input("Save Directory: ",
-                                  config,
-                                  "datasets_path",
-                                  default_value="datasets")
-        if datasets_path:
-            config["datasets_path"] = datasets_path
-        else:
-            datasets_path = config["datasets_path"]
 
-        os.makedirs(f"{datasets_path}/{dataset_name}", exist_ok=True)
-        saved_yaml_file = f"{datasets_path}/{dataset_name}/config.yaml"
-        open(f"{datasets_path}/{dataset_name}/{dataset_name}.py",
-             "w").write(code)
-        with open(saved_yaml_file, "w") as outfile:
-            yaml.dump(config, outfile, default_flow_style=False)
-        if local_dir:
-            dataset = load_dataset(f"{datasets_path}/{dataset_name}",
-                                   data_dir=dataset_link)
-        else:
-            dataset = load_dataset(f"{datasets_path}/{dataset_name}")
-        st.write(dataset)
-        st.write(dataset['train'][0])
-        hf_path = get_input("HF path", config, "hf_path")
+def page_second():
+    with open('temp.md', 'r') as f:
+        lines = f.read().splitlines()
+    title = lines[0].replace("[Dataset Name]", st.session_state.config["dataset_name"]) + "\n"
+    toc = lines[2:26]
+    info = lines[26:35]
+    rest = lines[35:]
+    st.markdown(title)
+    col1, col2 = st.columns([5, 5])
+    output_readme = ""
+    with col1:
+        for i, line in enumerate(info):
+            if "[info]" in line:
+                st.markdown(line.replace(": [info]", ""))
+                input = st.text_input(line, label_visibility="collapsed")
+                if input:
+                    output_readme = output_readme + line.replace("[info]", input)+  "\n"
+                else:
+                    output_readme = output_readme + line+  "\n"
 
-        token = st.text_input("Hf token", type="password")
-        if token and st.button('Upload'):
-            login(token)
-            if hf_path:
-                dataset.push_to_hub(f"{hf_path}/{dataset_name}")
-                st.write("uploaded!")
+            else:
+                output_readme = output_readme + line+  "\n"
+
+        for i, line in enumerate(rest):            
+            if line == "[More Information Needed]":
+                st.markdown(rest[i-2])
+                input = st.text_area(rest[i-2], label_visibility="collapsed")
+                if input:
+                    output_readme = output_readme + input+  "\n"
+                else:
+                    output_readme = output_readme + line+  "\n"
+
+            else:
+                output_readme = output_readme + line+  "\n"
+    with col2:
+        st.write(output_readme)
+    
+    output_readme = title + "\n" + "\n".join(toc) + "\n"+output_readme
+    save = st.button('save')
+    if save:
+        readme_loc = f'datasets/{st.session_state.config["dataset_name"]}/README.md'
+        with open(readme_loc, "w") as f:
+            f.write(output_readme)
+    
+
+
+if __name__ == "__main__":
+    main()
+
