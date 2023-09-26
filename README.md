@@ -6,8 +6,7 @@
 
 _dar_ or _دار_ which means house in Araibc is a simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. Here is an example of creating a loading script for a simple dataset:
 
-<video src='demo.mp4'></video>
-
+[demo.mp4](https://github.com/zaidalyafeai/dar/assets/15667714/e6980af1-5f2e-4843-b16c-869b103d34c5)
 
 ## Scripts
 
