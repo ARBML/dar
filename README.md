@@ -6,19 +6,13 @@
 
 _dar_ or _دار_ which means house in Araibc is a simple semi-supervised approach for creating huggingface data script loaders and upload to the hub. Here is an example of creating a loading script for a simple dataset:
 
-<video src='https://user-images.githubusercontent.com/15667714/200085495-f92d566b-6aee-430c-b7e0-e4a5da00ee27.mp4'></video>
+<video src='demo.mp4'></video>
 
 
 ## Scripts
 
-### Command line
-The main script can be ran using the following commands 
+The main interface can be ran using the following commands 
 
-```bash
-python main.py
-```
-
-### streamlit 
 ```bash
 streamlit run app.py
 ```
