@@ -1,3 +1,3 @@
-name\tage\tgender
-Raphael\t26\tmale
-Catrina\t20\tfemale
+name	age 	gender
+Raphael	26	male
+Catrina	20	female
