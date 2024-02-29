@@ -12,7 +12,10 @@ from src.imports_code import get_imports_code
 from src.split_code import get_split_code
 from src.squad_code import get_squad_code
 from urllib.parse import urlparse
-from huggingface_hub import HfApi
+import shutil
+
+valid_file_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav")
+valid_csv_sep = ("", ",", ";", "|", "tab")
 
 # https://stackoverflow.com/questions/7160737/how-to-validate-a-url-in-python-malformed-or-not
 def is_url(url):
@@ -49,15 +52,15 @@ def get_input(input_text,
         default_value = ",".join(default_value)
 
     if config_key == "file_type":
-        valid_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav")
+        default_value = default_value if default_value in valid_file_types else ""
         result = st.selectbox(input_text,
-                              options=valid_types,
-                              index=valid_types.index(default_value))
+                              options=valid_file_types,
+                              index=valid_file_types.index(default_value))
     elif config_key == "alt_sep":
-        valid_seps = ("", ",", ";", "|", "tab")
+        default_value = default_value if default_value in valid_csv_sep else ""
         result = st.selectbox(input_text,
-                              options=valid_seps,
-                              index=valid_seps.index(default_value))
+                              options=valid_csv_sep,
+                              index=valid_csv_sep.index(default_value))
     elif config_key in ["header", "lines"]:
         result = st.radio(input_text, (True, False))
     elif config_key in ["pal", "local_dir"]:
@@ -102,8 +105,8 @@ if "load_config" not in st.session_state:
 def main():
     # Register your pages
     pages = {
-        "Dataset Creation": page_first,
-        "Dataset README": page_second,
+        "Dataset Creation": first_page,
+        "Dataset README": second_page,
     }
 
     st.sidebar.title("Dar")
@@ -114,7 +117,7 @@ def main():
     # Display the selected page
     pages[page]()
 
-def page_first():
+def first_page():
     st.title("Dataset Creation")
     dataset_link = ""
     zipped = False
@@ -130,6 +133,7 @@ def page_first():
     pal = False
     alt_glob = ""
     config = {}
+    default_file_type = ""
 
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
@@ -164,6 +168,7 @@ def page_first():
             is_dir = True
 
         file_urls = convert_link(dataset_link)
+        default_file_type = file_urls[0].split('.')[-1]
         zipped = any([
             ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive"]
         ])
@@ -242,7 +247,7 @@ def page_first():
                                     local_dir=local_dir,
                                     is_dir=is_dir)
 
-        file_type = get_input("Enter the type: ", "file_type")
+        file_type = get_input("Enter the type: ", "file_type", default_value=default_file_type)
         config["file_type"] = file_type
         # file types paramters
         lines = False
@@ -348,7 +353,6 @@ def page_first():
             if label_column_name:
                 label_names = list(set(df[label_column_name]))
                 st.write(label_names)
-                st.write(config["new_columns"])
 
             generate_code = get_generate_code(
                 file_type,
@@ -381,9 +385,10 @@ def page_first():
             saved = st.button('Save')
 
             if saved:
-                os.makedirs(f"{datasets_path}/{dataset_name}", exist_ok=True)
-                saved_yaml_file = f"{datasets_path}/{dataset_name}/config.yaml"
-                open(f"{datasets_path}/{dataset_name}/{dataset_name}.py",
+                save_path = f"{datasets_path}/{dataset_name}"
+                os.makedirs(save_path, exist_ok=True)
+                saved_yaml_file = f"{save_path}/config.yaml"
+                open(f"{save_path}/{dataset_name}.py",
                 "w").write(code)
                 for key_config in st.session_state.config:
                     if key_config not in config:
@@ -391,6 +396,18 @@ def page_first():
                 st.write(config)
                 with open(saved_yaml_file, "w") as outfile:
                     yaml.dump(config, outfile, default_flow_style=False)
+                if not os.path.isfile(f"{save_path}/README.md"):
+                    shutil.copyfile(f"temp.md", f"{save_path}/README.md")
+                
+                if local_dir:
+                    dataset = load_dataset(save_path, data_dir=dataset_link)
+                else:
+                    dataset = load_dataset(save_path)
+
+                dataset.save_to_disk(save_path)
+                
+
+                
 
 
             hf_path = get_input("HF path", "hf_path")
@@ -399,11 +416,6 @@ def page_first():
                 login(token)
                 upload = st.button('Upload')
                 if upload:
-                    if local_dir:
-                        dataset = load_dataset(f"{datasets_path}/{dataset_name}",
-                                        data_dir=dataset_link)
-                    else:
-                        dataset = load_dataset(f"{datasets_path}/{dataset_name}")
                     st.write(dataset)
                     st.write(dataset['train'][0])
                     dataset.push_to_hub(f"{hf_path}/{dataset_name}")
@@ -415,7 +427,7 @@ def page_first():
             
 
 
-def page_second():
+def second_page():
     with open('temp.md', 'r') as f:
         lines = f.read().splitlines()
     title = lines[0].replace("[Dataset Name]", st.session_state.config["dataset_name"]) + "\n"

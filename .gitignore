@@ -3,3 +3,4 @@ datasets/dummy/*
 playground.ipynb
 .vscode/*
 *.lock
+datasets/*
