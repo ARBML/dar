@@ -9,7 +9,6 @@ from .constants import *
 import json
 from huggingface_hub import HfApi
 
-
 def convert_link(links):
     output = []
     for link in links.split(","):
@@ -96,7 +95,7 @@ def read_csv(paths, i, sep=",", skiprows=0):
     for path_name in paths:
         if sep == "tab":
             df = pd.read_csv(paths[path_name][i],
-                             sep=r'\\t',
+                             sep=r'\t',
                              skiprows=skiprows,
                              error_bad_lines=False,
                              engine='python')
