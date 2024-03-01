@@ -8,6 +8,24 @@ from glob import glob
 from .constants import *
 import json
 from huggingface_hub import HfApi
+import streamlit as st
+
+def create_text_input(text, default_value = "", key = None, label_visibility="collapsed", description = ""):
+    st.write(text)
+    st.caption(description)
+    return st.text_input(text, default_value, key = key, 
+                         label_visibility = label_visibility)
+
+def create_select_box(text, options, index = 0, label_visibility="collapsed", description = ""):
+    st.write(text)
+    st.caption(description)
+    return st.selectbox(text, options, index = index,
+                        label_visibility = label_visibility)
+
+def create_radio(text, options, label_visibility="collapsed", description = ""):
+    st.write(text)
+    st.caption(description)
+    return st.radio(text, options, label_visibility = label_visibility)
 
 def convert_link(links):
     output = []
