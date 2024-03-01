@@ -20,11 +20,11 @@ def get_split_code(urls,
         body = TABS_2 + f"url = [os.path.abspath(os.path.expanduser(dl_manager.manual_dir))]\n"
     else:
         body = TABS_2 + f"url = {urls}\n"
-    if local_dir:
+    if local_dir and len(zip_base_dir) == 0:
         body += TABS_2 + f"downloaded_files = url\n"
     elif len(zip_base_dir) > 0:
         body += TABS_2 + f"downloaded_files = dl_manager.download_and_extract(url)\n"
-        body += TABS_2 + "self.extract_all(downloaded_files[0])\n"
+        # body += TABS_2 + "self.extract_all(downloaded_files[0])\n"
     else:
         body += TABS_2 + f"downloaded_files = dl_manager.download(url)\n"
 

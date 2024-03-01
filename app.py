@@ -181,7 +181,7 @@ def first_page():
             else:
                 zip_base_dir = file_urls[0]
 
-            st.write(zip_base_dir)
+            
             download_data_path["inputs"] = get_valid_files(zip_base_dir)
             st.write(download_data_path)
             alt_glob = get_input("Enter a glob structure", "alt_glob",
@@ -213,6 +213,7 @@ def first_page():
                 )
 
                 if level:
+                    st.write(download_data_path)
                     level = int(level)
                     config["level"] = level
                     if level == -1:
@@ -268,6 +269,14 @@ def first_page():
                 json_key = get_input("set json key", "json_key")
                 if json_key:
                     config["json_key"] = json_key
+                    df = get_df(
+                        file_type,
+                        download_data_path,
+                        lines=lines,
+                        json_key=json_key,
+                        columns=xml_columns,
+                    )
+                    st.write(df.head())
 
             if file_type == "xml":
                 xml_columns = get_input(
@@ -277,6 +286,14 @@ def first_page():
                 if xml_columns:
                     config["xml_columns"] = xml_columns
                     xml_columns = xml_columns.split(",")
+                    df = get_df(
+                        file_type,
+                        download_data_path,
+                        lines=lines,
+                        json_key=json_key,
+                        columns=xml_columns,
+                    )
+                    st.write(df.head())
 
             if file_type == "csv":
                 alt_sep = get_input(f"Choose a separator for {file_type}",
@@ -286,14 +303,6 @@ def first_page():
                     best_sep = alt_sep
                     df = get_df(file_type, download_data_path, 0, sep=best_sep)
                     st.write(df.head())
-            else:
-                df = get_df(
-                    file_type,
-                    download_data_path,
-                    lines=lines,
-                    json_key=json_key,
-                    columns=xml_columns,
-                )
 
             skiprows = get_input("Skipped Rows", "skiprows")
             if skiprows:
@@ -313,6 +322,7 @@ def first_page():
 
             columns = list(df.columns)
             columns = [str(c) for c in columns]
+            prev_columns = columns
 
             if file_type in ["wav", "xml", "json"]:
                 header = 0
@@ -348,6 +358,7 @@ def first_page():
             generate_code = get_generate_code(
                 file_type,
                 columns,
+                prev_columns,
                 label_names,
                 label_column_name,
                 skiprows=skiprows if skiprows else 0,
@@ -396,6 +407,7 @@ def first_page():
                 else:
                     dataset = load_dataset(save_path)
 
+                st.write(dataset)
                 with st.spinner('Saving ...'):
                     dataset.save_to_disk(save_path)
 

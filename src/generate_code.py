@@ -3,6 +3,7 @@ from .constants import *
 
 def get_generate_code(type,
                       columns,
+                      prev_columns,
                       labels,
                       label_column_name,
                       use_labels_from_path=False,
@@ -34,7 +35,7 @@ def get_generate_code(type,
         pandas_df = TABS_3 + f"df = pd.read_excel(open(filepath, 'rb'), skiprows = {skiprows}, header = {header})\n"
     elif type in ['csv', 'tsv']:
         if sep == "tab":
-            pandas_df = TABS_3 + f"df = pd.read_csv(filepath, sep = r'\\\\t', skiprows = {skiprows}, error_bad_lines = False, header = {header}, engine = 'python')\n"
+            pandas_df = TABS_3 + f"df = pd.read_csv(filepath, sep = r'\\t', skiprows = {skiprows}, error_bad_lines = False, header = {header}, engine = 'python')\n"
         else:
             pandas_df = TABS_3 + f"df = pd.read_csv(open(filepath, 'rb'), sep = r'{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
 
@@ -48,7 +49,7 @@ def get_generate_code(type,
     elif type == 'jsonl' or type == 'json':
         pandas_df = TABS_3 + f"df = self.read_json(filepath, lines={lines}, json_key='{json_key}')\n"
     elif type == 'xml':
-        pandas_df = TABS_3 + f"df = self.read_xml(filepath, {columns})\n"
+        pandas_df = TABS_3 + f"df = self.read_xml(filepath, {prev_columns})\n"
     if type in ['wav', 'mp3']:
         pandas_df = TABS_3 + f"df = self.read_wav(filepath)\n"
         if len(alt_globs) > 1:
