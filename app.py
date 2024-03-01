@@ -294,7 +294,6 @@ def first_page():
                     json_key=json_key,
                     columns=xml_columns,
                 )
-                st.write(df.head())
 
             skiprows = get_input("Skipped Rows", "skiprows")
             if skiprows:
