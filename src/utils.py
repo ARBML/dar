@@ -27,6 +27,12 @@ def create_radio(text, options, label_visibility="collapsed", description = ""):
     st.caption(description)
     return st.radio(text, options, label_visibility = label_visibility)
 
+def create_number_input(text, value="min", min_value=None,max_value=None, label_visibility="collapsed", description = ""):
+    st.write(text)
+    st.caption(description)
+    return st.number_input(text, value=value, min_value=min_value, 
+                           max_value=max_value, label_visibility = label_visibility)
+
 def convert_link(links):
     output = []
     for link in links.split(","):

@@ -72,10 +72,10 @@ def get_input(input_text,
     elif config_key == "skiprows":
         result = st.number_input(input_text, value=0, min_value = 0)
     elif config_key == "level":
-        result = st.number_input(input_text,
-                                 value=-1,
-                                 min_value=-3,
-                                 max_value=-1)
+        result = create_number_input(input_text, value=-1,
+                                    min_value=-3,
+                                    max_value=-1,
+                                    description=description)
     elif config_key == "alt_glob" and glob_idx >= 0:
         if glob_idx >= len(default_value):
             result = create_text_input(input_text, key=key, description = description)
@@ -184,8 +184,8 @@ def first_page():
             
             download_data_path["inputs"] = get_valid_files(zip_base_dir)
             st.write(download_data_path)
-            alt_glob = get_input("Enter a glob structure", "alt_glob",
-                                description="For example **.txt", glob_idx=0)
+            alt_glob = get_input("Enter an input structure", "alt_glob",
+                                description="Use glob structure like **.txt", glob_idx=0)
             i = 1
             while alt_glob:
                 alt_glob = f"glob('{alt_glob}')"
@@ -202,18 +202,19 @@ def first_page():
                     i += 1
                 alt_glob = get_input("Enter a target structure",
                                     "alt_glob", glob_idx=i, key=i, 
-                                    description= "Target files, useful for machine translation datasets")
+                                    description= "Target files, useful for parallel datasets, like machine translation, speech recognition, etc.")
             else:
                 config["alt_glob"] = alt_globs
             pal = get_input("Path as labels ", "pal")
             if pal:
                 level = get_input(
-                    "level for the labels",
+                    "Label Level",
                     "level",
+                    description="Useful for datasets where the labels are strctured as foulders, for example\
+                    path\\sport\\00.txt should have level -2"
                 )
 
                 if level:
-                    st.write(download_data_path)
                     level = int(level)
                     config["level"] = level
                     if level == -1:
@@ -408,6 +409,8 @@ def first_page():
                     dataset = load_dataset(save_path)
 
                 st.write(dataset)
+                if 'train' in dataset:
+                    st.write(dataset['train'][0])
                 with st.spinner('Saving ...'):
                     dataset.save_to_disk(save_path)
 
