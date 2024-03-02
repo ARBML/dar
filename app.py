@@ -70,7 +70,7 @@ def get_input(input_text,
         result = create_select_box(input_text, columns, index=index,
                                    description = description)
     elif config_key == "skiprows":
-        result = st.number_input(input_text, value=0, min_value = 0)
+        result = create_number_input(input_text, value=0, min_value = 0, description=description)
     elif config_key == "level":
         result = create_number_input(input_text, value=-1,
                                     min_value=-3,
@@ -243,7 +243,7 @@ def first_page():
                                     local_dir=local_dir,
                                     is_dir=is_dir)
 
-        file_type = get_input("Choose the file type", "file_type", default_value=default_file_type,
+        file_type = get_input("File Type", "file_type", default_value=default_file_type,
                               description= "Supported files: csv,txt,json,xml,xlsx,wav")
         config["file_type"] = file_type
         # file types paramters
@@ -262,12 +262,12 @@ def first_page():
             )
             st.write(df.head())
             if file_type in ["json", "txt"]:
-                lines = get_input("set lines", "lines")
+                lines = get_input("Set Lines", "lines", description="Whether to consider new lines or not.")
                 if lines:
                     config["lines"] = lines
 
             if file_type == "json":
-                json_key = get_input("set json key", "json_key")
+                json_key = get_input("Json Key", "json_key", description="The json key that contains the data. ")
                 if json_key:
                     config["json_key"] = json_key
                     df = get_df(
@@ -281,8 +281,9 @@ def first_page():
 
             if file_type == "xml":
                 xml_columns = get_input(
-                    "Enter xml columns separated by comma",
+                    "XML Columns",
                     "xml_columns",
+                    description="Enter xml columns separated by comma."
                 )
                 if xml_columns:
                     config["xml_columns"] = xml_columns
@@ -297,15 +298,15 @@ def first_page():
                     st.write(df.head())
 
             if file_type == "csv":
-                alt_sep = get_input(f"Choose a separator for {file_type}",
-                                    "alt_sep", default_value=best_sep, description="CSV separator")
+                alt_sep = get_input(f"CSV Separator",
+                                    "alt_sep", default_value=best_sep, description="The separator used to split columns. ")
                 if alt_sep:
                     config["alt_sep"] = alt_sep
                     best_sep = alt_sep
                     df = get_df(file_type, download_data_path, 0, sep=best_sep)
                     st.write(df.head())
 
-            skiprows = get_input("Skipped Rows", "skiprows")
+            skiprows = get_input("Skipped Rows", "skiprows", description="Number of rows to skipp when reading the file.")
             if skiprows:
                 skiprows = int(skiprows)
                 config["skiprows"] = skiprows
@@ -348,7 +349,7 @@ def first_page():
                 st.write(df.head())
 
             if not pal:
-                label_column_name = get_input("Choose label column name", "label_column_name", label_columns=df.columns, 
+                label_column_name = get_input("Label Column Name", "label_column_name", label_columns=df.columns, 
                                             description="The column name for the labels, useful for classificaiton datasets")
                 config["label_column_name"] = label_column_name
 
@@ -415,7 +416,7 @@ def first_page():
                     dataset.save_to_disk(save_path)
 
             hf_path = get_input("HuggingFace path", "hf_path", description="Save data in HuggingFace hub Username/dataset_name")
-            token = st.text_input("HuggingFace token", type="password")   
+            token = create_text_input("HuggingFace token", type="password", description="HuggingFace token hf_**")   
                 
             if token and hf_path:
                 if local_dir:
@@ -433,10 +434,6 @@ def first_page():
                         upload_file(f"{save_path}/{dataset_name}.py", repo_id=hf_path)
                         upload_file(f"{save_path}/config.yaml", repo_id=hf_path)
                         st.write(f"Uploaded to [{hf_path}](https://huggingface.co/datasets/{hf_path})")
-
-            
-            
-
 
 def second_page():
     with open('temp.md', 'r') as f:
