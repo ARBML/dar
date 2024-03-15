@@ -34,7 +34,8 @@ The user will enter the file type when asked for `File Type`, the supported file
 * `json` can be used for dictionary like files. The use can choose `Set Lines` as well which will decide whether to split the file by new lines or read the file as a whole. Also some datasets can have a parent dictionary for example `{'data':{'col1': [...], 'col2': [...]}}`, to support that the user can `Json Key` whcih is `data` in this example. 
 * `xml` can be used for files that contain tags, for example `html` files. The user will be prompted to enter the column names for example `<s>this is good</s><l>positive</l> .....` then upon getting the prompt `XML Columns` the user can choose `s,l` such tags as columns. 
 * `xlsx` used for `excel` file formats. 
-* `wav` this is used for audio files like `mp3,wav` files. Upon choosing that the program will automatically create the following features as columns `{'path':path_to_file, 'audio':np.array(...)}`
+* `wav` this is used for audio files like `mp3,wav` files. Upon choosing that the program will automatically create the following features as columns `{'audio':np.array(...)}`
+* `jpg` this is used for image files like `jpg,png` files. Upon choosing that the program will automatically create the following features as columns `{'image':np.array(...)}`
 
 ## File Processing 
 All the files will be processed using `pandas`. The user can modify some contents when prompted to 
