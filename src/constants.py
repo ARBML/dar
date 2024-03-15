@@ -2,7 +2,7 @@ TABS_1 = "\t"
 TABS_2 = "\t\t"
 TABS_3 = "\t\t\t"
 TABS_4 = "\t\t\t\t"
-valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'wav', 'mp3']
+valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'wav', 'mp3', "jpg", "png"]
 xml_code = f'''
 
 {TABS_1}def get_data(self, bs, column):
@@ -67,7 +67,16 @@ json_code = f'''
 wav_code = f'''
 {TABS_1}def read_wav(self, filepath):
 {TABS_2}if filepath.endswith('.wav') or filepath.endswith('.mp3'):
-{TABS_3}raw_data = {{'filepath':[filepath], 'audio':[filepath]}}
+{TABS_3}raw_data = {{'audio':[filepath]}}
+{TABS_2}else:
+{TABS_3}raw_data = {{'text':[open(filepath).read()]}}
+{TABS_2}return pd.DataFrame(raw_data)
+'''
+
+jpg_code = f'''
+{TABS_1}def read_image(self, filepath):
+{TABS_2}if filepath.endswith('.jpg') or filepath.endswith('.png'):
+{TABS_3}raw_data = {{'bytes':[filepath]}}
 {TABS_2}else:
 {TABS_3}raw_data = {{'text':[open(filepath).read()]}}
 {TABS_2}return pd.DataFrame(raw_data)

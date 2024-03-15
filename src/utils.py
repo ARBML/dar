@@ -139,8 +139,22 @@ def read_wav(paths, i):
         if paths[path_name][i].endswith(
                 ".wav") or paths[path_name][i].endswith(".mp3"):
             raw_data = {
-                "path": [paths[path_name][i]],
                 "audio": [paths[path_name][i]]
+            }
+        else:
+            raw_data = {"text": [open(paths[path_name][i]).read()]}
+        df = pd.DataFrame(raw_data)
+        dfs.append(df)
+    df = pd.concat(dfs, axis=1)
+    return df
+
+def read_image(paths, i):
+    dfs = []
+    for path_name in paths:
+        if paths[path_name][i].endswith(
+                ".jpg") or paths[path_name][i].endswith(".png"):
+            raw_data = {
+                "image": [paths[path_name][i]]
             }
         else:
             raw_data = {"text": [open(paths[path_name][i]).read()]}
@@ -178,9 +192,7 @@ def get_df(type,
            json_key="",
            columns=None):
     dfs = []
-
     for i, _ in enumerate(paths["inputs"]):
-
         if type == "xlsx":
             df = read_excel(paths, i, skiprows=skiprows)
 
@@ -189,6 +201,9 @@ def get_df(type,
 
         if type == "wav":
             df = read_wav(paths, i)
+        
+        if type == "jpg":
+            df = read_image(paths, i)
 
         if type == "xml":
             df = read_xml(paths, i, columns=columns)

@@ -26,6 +26,8 @@ def get_generate_code(type,
         type_helper_fns += json_code
     if type == 'wav':
         type_helper_fns += wav_code
+    if type == 'jpg':
+        type_helper_fns += jpg_code        
 
     func_name = "def _generate_examples(self, filepaths):\n"
     loop_files = TABS_2 + "_id = 0\n"
@@ -56,6 +58,13 @@ def get_generate_code(type,
             pandas_df += TABS_3 + f"dfs = [df] \n"
             for j in range(1, len(alt_globs)):
                 pandas_df += TABS_3 + f"dfs.append(self.read_wav(filepaths['targets{j}'][i]))\n"
+            pandas_df += TABS_3 + f"df = pd.concat(dfs, axis = 1)\n"
+    if type in ['jpg', 'png']:
+        pandas_df = TABS_3 + f"df = self.read_image(filepath)\n"
+        if len(alt_globs) > 1:
+            pandas_df += TABS_3 + f"dfs = [df] \n"
+            for j in range(1, len(alt_globs)):
+                pandas_df += TABS_3 + f"dfs.append(self.read_image(filepaths['targets{j}'][i]))\n"
             pandas_df += TABS_3 + f"df = pd.concat(dfs, axis = 1)\n"
     pandas_df += TABS_3 + f"if len(df.columns) != {len(columns)}:\n"
     pandas_df += TABS_4 + f"continue\n"

@@ -2,6 +2,8 @@
 def get_feature(feature):
   if feature == 'audio':
     return f"'{feature}':datasets.Audio(sampling_rate=16_000)"
+  elif feature == 'image':
+    return f"'{feature}':datasets.Image()"
   else:
     return f"'{feature}':datasets.Value('string')"
 

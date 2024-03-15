@@ -14,7 +14,7 @@ from src.squad_code import get_squad_code
 from urllib.parse import urlparse
 import shutil
 
-valid_file_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav")
+valid_file_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav", "jpg")
 valid_csv_sep = ("", ",", ";", "|", "tab")
 
 # https://stackoverflow.com/questions/7160737/how-to-validate-a-url-in-python-malformed-or-not
@@ -244,7 +244,7 @@ def first_page():
                                     is_dir=is_dir)
 
         file_type = get_input("File Type", "file_type", default_value=default_file_type,
-                              description= "Supported files: csv,txt,json,xml,xlsx,wav")
+                              description= "Supported files: csv,txt,json,xml,xlsx,wav,jpg")
         config["file_type"] = file_type
         # file types paramters
         lines = False
@@ -326,7 +326,7 @@ def first_page():
             columns = [str(c) for c in columns]
             prev_columns = columns
 
-            if file_type in ["wav", "xml", "json"]:
+            if file_type in ["jpg", "wav", "xml", "json"]:
                 header = 0
             else:
                 header = get_input(
