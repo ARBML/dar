@@ -121,13 +121,13 @@ def read_csv(paths, i, sep=",", skiprows=0):
             df = pd.read_csv(paths[path_name][i],
                              sep=r'\t',
                              skiprows=skiprows,
-                             error_bad_lines=False,
+                             on_bad_lines='skip',
                              engine='python')
         else:
             df = pd.read_csv(paths[path_name][i],
                              sep=sep,
                              skiprows=skiprows,
-                             error_bad_lines=False)
+                             on_bad_lines='skip')
         dfs.append(df)
 
     return pd.concat(dfs, axis=1)
