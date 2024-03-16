@@ -54,8 +54,7 @@ def get_split_code(urls,
                 for alt_glob in alt_globs:
                     glob_name = list(alt_glob.keys())[0]
                     glob_struct = alt_glob[glob_name]
-                    glob_struct = glob_struct.replace(
-                        "glob('", "glob(downloaded_files[0]+'/")
+                    glob_struct = f"glob(downloaded_files[0]+'/{glob_struct}')"
                     split_gen += f"'{glob_name}':sorted({glob_struct}),"
                 split_gen += "} })"
                 result.append(split_gen)
