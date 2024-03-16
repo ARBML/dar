@@ -46,11 +46,16 @@ def get_input(input_text,
               description = "",
               key=0):
     
-    if st.session_state.load_config:
+    # if st.session_state.load_config:
+    #     default_value = st.session_state.default_config[config_key]
+    
+    if st.session_state.reload_config:
         default_value = st.session_state.config[config_key]
 
-    if type(default_value) == list:
-        default_value = ",".join(default_value)
+    if type(default_value) == list and len(default_value):
+        print(default_value)
+        if type(default_value[0]) != dict:
+            default_value = ",".join(default_value)
 
     if config_key == "file_type":
         default_value = default_value if default_value in valid_file_types else ""
@@ -94,11 +99,18 @@ def get_input(input_text,
 
 
 if "config" not in st.session_state:
-        with open("default.yaml", "r") as f:
-            st.session_state.config = yaml.safe_load(f)
+    with open("default.yaml", "r") as f:
+        st.session_state.config = yaml.safe_load(f) 
 
-if "load_config" not in st.session_state:
-    st.session_state.load_config = False 
+if "page" not in st.session_state:
+    st.session_state.page = "first"
+
+if "reload_config" not in st.session_state:
+    st.session_state.reload_config = False
+
+
+def refresh():
+    st.session_state.reload_config = True    
 
 def main():
     # Register your pages
@@ -110,12 +122,20 @@ def main():
     st.sidebar.title("Dar")
 
     # Widget to select your page, you can choose between radio buttons or a selectbox
-    page = st.sidebar.radio("Select a choice", tuple(pages.keys()))
+    page = st.sidebar.radio("Select a choice", tuple(pages.keys()), on_change = refresh)
+
+    st.sidebar.write("Options")
+    clear = st.sidebar.button("Clear")
+
+    if clear:
+        with open("default.yaml", "r") as f:
+            st.session_state.config = yaml.safe_load(f) 
 
     # Display the selected page
     pages[page]()
 
 def first_page():
+    st.session_state.page = "first"
     st.title("Dataset Creation")
     dataset_link = ""
     zipped = False
@@ -130,27 +150,25 @@ def first_page():
     header = None
     pal = False
     alt_glob = ""
-    config = {}
     default_file_type = ""
 
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
-    uploaded_file = st.file_uploader("Load yaml file")
-    if uploaded_file:
-        st.session_state.config = yaml.load(uploaded_file.read())
-        st.session_state.load_config = True
+    # uploaded_file = st.file_uploader("Load yaml file")
+    # if uploaded_file:
+    #     st.session_state.config = yaml.load(uploaded_file.read())
+    #     st.session_state.load_config = True
 
     dl_manager = DownloadManager()
 
     datasets_path = ""
 
-    dataset_name = get_input("Dataset Name", "dataset_name", default_value="NewDataset", 
-                             description = "Dataset Name don\'t add spaces")
+    dataset_name = get_input("Dataset Name", "dataset_name", description = "Dataset Name don\'t add spaces")
     if dataset_name:
         main_class_code = get_class_code(dataset_name)
-        config["dataset_name"] = dataset_name
-
+        st.session_state.config["dataset_name"] = dataset_name
+    
     dataset_link = get_input("Dataset Directory", "dataset_link", description="Link or local directory")
 
     is_dir = False
@@ -159,7 +177,7 @@ def first_page():
     if dataset_link:
         if not is_url(dataset_link):
             local_dir = True
-            config["local_dir"] = local_dir
+            st.session_state.config["local_dir"] = local_dir
 
         if os.path.isdir(dataset_link):
             is_dir = True
@@ -169,7 +187,7 @@ def first_page():
         zipped = any([
             ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive"]
         ])
-        config["dataset_link"] = dataset_link
+        st.session_state.config["dataset_link"] = dataset_link
         if zipped or is_dir:
             if zipped:
                 try:
@@ -188,15 +206,12 @@ def first_page():
                                 description="Use glob structure like **.txt", glob_idx=0)
             i = 1
             while alt_glob:
-                alt_glob = f"glob('{alt_glob}')"
                 if len(alt_globs) == 0:
-                    download_data_path["inputs"] = eval(
-                        alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+                    download_data_path["inputs"] = eval(f"glob('{zip_base_dir}/{alt_glob}')")
                     download_data_path["inputs"].sort()
                     alt_globs.append({"inputs": alt_glob})
                 else:
-                    download_data_path[f"targets{i}"] = eval(
-                        alt_glob.replace("glob('", f"glob('{zip_base_dir}/"))
+                    download_data_path[f"targets{i}"] = eval(f"glob('{zip_base_dir}/{alt_glob}')")
                     download_data_path[f"targets{i}"].sort()
                     alt_globs.append({f"targets{i}": alt_glob})
                     i += 1
@@ -204,7 +219,7 @@ def first_page():
                                     "alt_glob", glob_idx=i, key=i, 
                                     description= "Target files, useful for parallel datasets, like machine translation, speech recognition, etc.")
             else:
-                config["alt_glob"] = alt_globs
+                st.session_state.config["alt_glob"] = alt_globs
             pal = get_input("Path as labels ", "pal")
             if pal:
                 level = get_input(
@@ -216,7 +231,7 @@ def first_page():
 
                 if level:
                     level = int(level)
-                    config["level"] = level
+                    st.session_state.config["level"] = level
                     if level == -1:
                         label_names = list(
                             set([
@@ -245,7 +260,7 @@ def first_page():
 
         file_type = get_input("File Type", "file_type", default_value=default_file_type,
                               description= "Supported files: csv,txt,json,xml,xlsx,wav,jpg")
-        config["file_type"] = file_type
+        st.session_state.config["file_type"] = file_type
         # file types paramters
         lines = False
         json_key = ""
@@ -264,12 +279,12 @@ def first_page():
             if file_type in ["json", "txt"]:
                 lines = get_input("Set Lines", "lines", description="Whether to consider new lines or not.")
                 if lines:
-                    config["lines"] = lines
+                    st.session_state.config["lines"] = lines
 
             if file_type == "json":
                 json_key = get_input("Json Key", "json_key", description="The json key that contains the data. ")
                 if json_key:
-                    config["json_key"] = json_key
+                    st.session_state.config["json_key"] = json_key
                     df = get_df(
                         file_type,
                         download_data_path,
@@ -286,7 +301,7 @@ def first_page():
                     description="Enter xml columns separated by comma."
                 )
                 if xml_columns:
-                    config["xml_columns"] = xml_columns
+                    st.session_state.config["xml_columns"] = xml_columns
                     xml_columns = xml_columns.split(",")
                     df = get_df(
                         file_type,
@@ -301,7 +316,7 @@ def first_page():
                 alt_sep = get_input(f"CSV Separator",
                                     "alt_sep", default_value=best_sep, description="The separator used to split columns. ")
                 if alt_sep:
-                    config["alt_sep"] = alt_sep
+                    st.session_state.config["alt_sep"] = alt_sep
                     best_sep = alt_sep
                     df = get_df(file_type, download_data_path, 0, sep=best_sep)
                     st.write(df.head())
@@ -309,7 +324,7 @@ def first_page():
             skiprows = get_input("Skipped Rows", "skiprows", description="Number of rows to skipp when reading the file.")
             if skiprows:
                 skiprows = int(skiprows)
-                config["skiprows"] = skiprows
+                st.session_state.config["skiprows"] = skiprows
 
                 if skiprows != 0:
                     df = get_df(
@@ -333,14 +348,14 @@ def first_page():
                     "Headers", "header", description="Does the dataset have a header with column names?"
                 )
                 if header:
-                    config["header"] = header
+                    st.session_state.config["header"] = header
                     header = 0 if header else None
 
             new_columns = get_input("New Column Names","new_columns", 
                                     description="Enter new column names separated by comma: Column1,Column2, etc. ")
             if new_columns:
                 new_columns = new_columns.split(",") if type(new_columns) != list else new_columns
-                config["new_columns"] = new_columns
+                st.session_state.config["new_columns"] = new_columns
                 st.write(new_columns)
 
                 if len(new_columns) > 0:
@@ -351,7 +366,7 @@ def first_page():
             if not pal:
                 label_column_name = get_input("Label Column Name", "label_column_name", label_columns=df.columns, 
                                             description="The column name for the labels, useful for classificaiton datasets")
-                config["label_column_name"] = label_column_name
+                st.session_state.config["label_column_name"] = label_column_name
 
             if label_column_name:
                 label_names = list(set(df[label_column_name]))
@@ -380,12 +395,9 @@ def first_page():
             code = import_code + main_class_code + features_code + split_code + generate_code
             datasets_path = get_input("Save Directory",
                                     "datasets_path",
-                                    default_value="datasets",
                                     description="Local directory to save the data")
             if datasets_path:
-                config["datasets_path"] = datasets_path
-            else:
-                datasets_path = st.session_state.config["datasets_path"]
+                st.session_state.config["datasets_path"] = datasets_path
 
             saved = st.button('Save')
             save_path = f"{datasets_path}/{dataset_name}"
@@ -395,12 +407,9 @@ def first_page():
                 saved_yaml_file = f"{save_path}/config.yaml"
                 open(f"{save_path}/{dataset_name}.py",
                 "w").write(code)
-                for key_config in st.session_state.config:
-                    if key_config not in config:
-                        config[key_config] = st.session_state.config[key_config]
                 # st.write(config)
                 with open(saved_yaml_file, "w") as outfile:
-                    yaml.dump(config, outfile, default_flow_style=False)
+                    yaml.dump(st.session_state.config, outfile, default_flow_style=False)
                 if not os.path.isfile(f"{save_path}/README.md"):
                     shutil.copyfile(f"temp.md", f"{save_path}/README.md")
                 
@@ -436,6 +445,7 @@ def first_page():
                         st.write(f"Uploaded to [{hf_path}](https://huggingface.co/datasets/{hf_path})")
 
 def second_page():
+    st.session_state.page = "second"
     with open('temp.md', 'r') as f:
         lines = f.read().splitlines()
     title = lines[0].replace("[Dataset Name]", st.session_state.config["dataset_name"]) + "\n"
@@ -463,7 +473,11 @@ def second_page():
                 st.markdown(rest[i-2])
                 input = st.text_area(rest[i-2], label_visibility="collapsed")
                 if input:
-                    output_readme = output_readme + input+  "\n"
+                    if 'Citation' in rest[i-2]:
+                        print(rest[i-2])
+                        output_readme = output_readme + f"```\n{input}\n``` \n"
+                    else:
+                        output_readme = output_readme + input+  "\n"
                 else:
                     output_readme = output_readme + line+  "\n"
 
