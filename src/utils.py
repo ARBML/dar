@@ -16,16 +16,16 @@ def create_text_input(text, default_value = "", key = None, label_visibility="co
     return st.text_input(text, default_value, key = key, type = type,
                          label_visibility = label_visibility)
 
-def create_select_box(text, options, index = 0, label_visibility="collapsed", description = ""):
+def create_select_box(text, options, index = 0, key = None, label_visibility="collapsed", description = ""):
     st.write(text)
     st.caption(description)
-    return st.selectbox(text, options, index = index,
+    return st.selectbox(text, options, index = index, key = key,
                         label_visibility = label_visibility)
 
-def create_radio(text, options, label_visibility="collapsed", description = ""):
+def create_radio(text, options, key = None, label_visibility="collapsed", description = ""):
     st.write(text)
     st.caption(description)
-    return st.radio(text, options, label_visibility = label_visibility)
+    return st.radio(text, options, key = key, label_visibility = label_visibility)
 
 def create_number_input(text, value="min", min_value=None,max_value=None, label_visibility="collapsed", description = ""):
     st.write(text)

@@ -45,35 +45,28 @@ def get_input(input_text,
               label_columns=[],
               description = "",
               key=0):
-    
-    # if st.session_state.load_config:
-    #     default_value = st.session_state.default_config[config_key]
-    
-    if st.session_state.reload_config:
-        default_value = st.session_state.config[config_key]
 
     if type(default_value) == list and len(default_value):
-        print(default_value)
         if type(default_value[0]) != dict:
             default_value = ",".join(default_value)
 
     if config_key == "file_type":
         default_value = default_value if default_value in valid_file_types else ""
-        result = create_select_box(input_text, valid_file_types,
+        result = create_select_box(input_text, valid_file_types, key = config_key,
                               index=valid_file_types.index(default_value), description=description)
     elif config_key == "alt_sep":
         default_value = default_value if default_value in valid_csv_sep else ""
-        result = create_select_box(input_text,valid_csv_sep,
+        result = create_select_box(input_text,valid_csv_sep, key = key,
                               index=valid_csv_sep.index(default_value), description=description)
     elif config_key in ["header", "lines"]:
-        result = create_radio(input_text, (True, False), description = description)
+        result = create_radio(input_text, (True, False), description = description, key = config_key)
     elif config_key in ["pal", "local_dir"]:
-        result = create_radio(input_text, (False, True))
+        result = create_radio(input_text, (False, True), key = config_key)
     elif config_key == "label_column_name":
         columns = [""] + list(label_columns)
         index = columns.index(default_value) if default_value in columns else 0
         result = create_select_box(input_text, columns, index=index,
-                                   description = description)
+                                   description = description, key = config_key)
     elif config_key == "skiprows":
         result = create_number_input(input_text, value=0, min_value = 0, description=description)
     elif config_key == "level":
@@ -94,24 +87,24 @@ def get_input(input_text,
                                    default_value[glob_idx][key],
                                    key=key, description = description)
     else:
-        result = create_text_input(input_text, default_value, description = description)
+        result = create_text_input(input_text, default_value, description = description, key = config_key)
     return result
 
 
 if "config" not in st.session_state:
     with open("default.yaml", "r") as f:
-        st.session_state.config = yaml.safe_load(f) 
+        st.session_state.config = yaml.safe_load(f)
 
-if "page" not in st.session_state:
-    st.session_state.page = "first"
+if "readme_config" not in st.session_state:
+    st.session_state.readme_config = {}
 
-if "reload_config" not in st.session_state:
-    st.session_state.reload_config = False
-
-
-def refresh():
-    st.session_state.reload_config = True    
-
+def switch_state():
+    for key in st.session_state.config:
+        st.session_state[key] = st.session_state.config[key]
+    
+    for key in st.session_state.readme_config:
+        st.session_state[key] = st.session_state.readme_config[key]
+        
 def main():
     # Register your pages
     pages = {
@@ -122,17 +115,12 @@ def main():
     st.sidebar.title("Dar")
 
     # Widget to select your page, you can choose between radio buttons or a selectbox
-    page = st.sidebar.radio("Select a choice", tuple(pages.keys()), on_change = refresh)
+    page = st.sidebar.radio("Select a choice", tuple(pages.keys()), on_change = switch_state)
 
-    st.sidebar.write("Options")
-    clear = st.sidebar.button("Clear")
-
-    if clear:
-        with open("default.yaml", "r") as f:
-            st.session_state.config = yaml.safe_load(f) 
-
+    if page:
+        pages[page]()    
+        
     # Display the selected page
-    pages[page]()
 
 def first_page():
     st.session_state.page = "first"
@@ -151,7 +139,7 @@ def first_page():
     pal = False
     alt_glob = ""
     default_file_type = ""
-
+    st.sidebar.write(st.session_state.config)
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
@@ -355,7 +343,7 @@ def first_page():
                                     description="Enter new column names separated by comma: Column1,Column2, etc. ")
             if new_columns:
                 new_columns = new_columns.split(",") if type(new_columns) != list else new_columns
-                st.session_state.config["new_columns"] = new_columns
+                st.session_state.config["new_columns"] = ",".join(new_columns)
                 st.write(new_columns)
 
                 if len(new_columns) > 0:
@@ -459,9 +447,10 @@ def second_page():
         for i, line in enumerate(info):
             if "[info]" in line:
                 st.markdown(line.replace(": [info]", ""))
-                input = st.text_input(line, label_visibility="collapsed")
+                input = st.text_input(line, label_visibility="collapsed", key = line)
                 if input:
                     output_readme = output_readme + line.replace("[info]", input)+  "\n"
+                    st.session_state.readme_config[line] = input.strip()
                 else:
                     output_readme = output_readme + line+  "\n"
 
@@ -471,11 +460,11 @@ def second_page():
         for i, line in enumerate(rest):            
             if line == "[More Information Needed]":
                 st.markdown(rest[i-2])
-                input = st.text_area(rest[i-2], label_visibility="collapsed")
+                input = st.text_area(rest[i-2], label_visibility="collapsed", key = rest[i-2])
                 if input:
                     if 'Citation' in rest[i-2]:
-                        print(rest[i-2])
-                        output_readme = output_readme + f"```\n{input}\n``` \n"
+                        output_readme = output_readme + f"```\n{input.strip()}\n``` \n"
+                        st.session_state.readme_config[rest[i-2]] = input
                     else:
                         output_readme = output_readme + input+  "\n"
                 else:
