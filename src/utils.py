@@ -114,7 +114,7 @@ def read_json(paths, i, lines=False, json_key=""):
     return pd.concat(dfs, axis=1)
 
 
-def read_csv(paths, i, sep=",", skiprows=0):
+def read_csv(paths, i, sep=",", skiprows=0, header = 0):
     dfs = []
     for path_name in paths:
         if sep == "tab":
@@ -122,12 +122,14 @@ def read_csv(paths, i, sep=",", skiprows=0):
                              sep=r'\t',
                              skiprows=skiprows,
                              on_bad_lines='skip',
-                             engine='python')
+                             engine='python',
+                             header = header)
         else:
             df = pd.read_csv(paths[path_name][i],
                              sep=sep,
                              skiprows=skiprows,
-                             on_bad_lines='skip')
+                             on_bad_lines='skip',
+                             header = header)
         dfs.append(df)
 
     return pd.concat(dfs, axis=1)
@@ -190,7 +192,8 @@ def get_df(type,
            sep=",",
            lines=False,
            json_key="",
-           columns=None):
+           columns=None,
+           header = 0):
     dfs = []
     for i, _ in enumerate(paths["inputs"]):
         if type == "xlsx":
@@ -212,7 +215,7 @@ def get_df(type,
             df = read_txt(paths, i, skiprows=skiprows, lines=lines)
 
         if type == "csv":
-            df = read_csv(paths, i, sep=f"{sep}", skiprows=skiprows)
+            df = read_csv(paths, i, sep=f"{sep}", skiprows=skiprows, header = header)
 
         if len(dfs) > 0:
             df.columns = dfs[-1].columns

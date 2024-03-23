@@ -1,9 +1,9 @@
 pal: False
 squad: False
 local_dir: False
-datasets_path: "datasets"
+datasets_path: ""
 hf_path : ""
-dataset_name : "dummy"
+dataset_name : ""
 dataset_link: ""
 alt_glob : []
 level : null 

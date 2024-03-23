@@ -56,12 +56,14 @@ def get_input(input_text,
                               index=valid_file_types.index(default_value), description=description)
     elif config_key == "alt_sep":
         default_value = default_value if default_value in valid_csv_sep else ""
-        result = create_select_box(input_text,valid_csv_sep, key = key,
+        result = create_select_box(input_text,valid_csv_sep, key = config_key,
                               index=valid_csv_sep.index(default_value), description=description)
     elif config_key in ["header", "lines"]:
         result = create_radio(input_text, (True, False), description = description, key = config_key)
     elif config_key in ["pal", "local_dir"]:
         result = create_radio(input_text, (False, True), key = config_key)
+    elif config_key in ["include_script"]:
+        result = create_radio(input_text, (False, True), description=description, key = config_key)
     elif config_key == "label_column_name":
         columns = [""] + list(label_columns)
         index = columns.index(default_value) if default_value in columns else 0
@@ -135,11 +137,10 @@ def first_page():
     download_data_path = {}
     label_column_name = ""
     file_urls = ""
-    header = None
+    header = 0
     pal = False
     alt_glob = ""
     default_file_type = ""
-    st.sidebar.write(st.session_state.config)
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
@@ -248,7 +249,6 @@ def first_page():
 
         file_type = get_input("File Type", "file_type", default_value=default_file_type,
                               description= "Supported files: csv,txt,json,xml,xlsx,wav,jpg")
-        st.session_state.config["file_type"] = file_type
         # file types paramters
         lines = False
         json_key = ""
@@ -256,6 +256,8 @@ def first_page():
         best_sep = ","
 
         if file_type:
+            st.session_state.config["file_type"] = file_type
+
             df = get_df(
                 file_type,
                 download_data_path,
@@ -279,6 +281,7 @@ def first_page():
                         lines=lines,
                         json_key=json_key,
                         columns=xml_columns,
+                        header=header
                     )
                     st.write(df.head())
 
@@ -297,6 +300,7 @@ def first_page():
                         lines=lines,
                         json_key=json_key,
                         columns=xml_columns,
+                        header=header
                     )
                     st.write(df.head())
 
@@ -306,24 +310,25 @@ def first_page():
                 if alt_sep:
                     st.session_state.config["alt_sep"] = alt_sep
                     best_sep = alt_sep
-                    df = get_df(file_type, download_data_path, 0, sep=best_sep)
+                    df = get_df(file_type, download_data_path, 0, sep=best_sep, header=header)
                     st.write(df.head())
 
             skiprows = get_input("Skipped Rows", "skiprows", description="Number of rows to skipp when reading the file.")
+            st.session_state.config["skiprows"] = skiprows
+
             if skiprows:
                 skiprows = int(skiprows)
-                st.session_state.config["skiprows"] = skiprows
 
-                if skiprows != 0:
-                    df = get_df(
-                        file_type,
-                        download_data_path,
-                        skiprows=skiprows,
-                        sep=best_sep,
-                        lines=lines,
-                        json_key=json_key,
-                    )
-                    st.write(df.head())
+                df = get_df(
+                    file_type,
+                    download_data_path,
+                    skiprows=skiprows,
+                    sep=best_sep,
+                    lines=lines,
+                    json_key=json_key,
+                    header=header
+                )
+                st.write(df.head())
 
             columns = list(df.columns)
             columns = [str(c) for c in columns]
@@ -332,12 +337,27 @@ def first_page():
             if file_type in ["jpg", "wav", "xml", "json"]:
                 header = 0
             else:
-                header = get_input(
+                if get_input(
                     "Headers", "header", description="Does the dataset have a header with column names?"
-                )
-                if header:
-                    st.session_state.config["header"] = header
-                    header = 0 if header else None
+                ):
+                    header = 0
+                else:
+                    header = None
+                
+                st.session_state.config["header"] = header
+
+                
+                df = get_df(
+                        file_type,
+                        download_data_path,
+                        skiprows=skiprows,
+                        sep=best_sep,
+                        lines=lines,
+                        json_key=json_key,
+                        header=header
+                    )
+                
+
 
             new_columns = get_input("New Column Names","new_columns", 
                                     description="Enter new column names separated by comma: Column1,Column2, etc. ")
@@ -369,7 +389,7 @@ def first_page():
                 skiprows=skiprows if skiprows else 0,
                 use_labels_from_path=pal,
                 sep=best_sep if best_sep else ",",
-                header=header if header else 0,
+                header=header,
                 lines=True if lines else False,
                 json_key=json_key if json_key else "",
                 level=level if level else None,
@@ -385,53 +405,48 @@ def first_page():
                                     "datasets_path",
                                     description="Local directory to save the data")
             if datasets_path:
-                st.session_state.config["datasets_path"] = datasets_path
-
-            saved = st.button('Save')
-            save_path = f"{datasets_path}/{dataset_name}"
-
-            if saved:
+                
+                save_path = f"{datasets_path}/{dataset_name}"
                 os.makedirs(save_path, exist_ok=True)
+
+
+                open(f"{save_path}/{dataset_name}.py", "w").write(code)
+                if local_dir:
+                    dataset = load_dataset(save_path, data_dir=dataset_link)
+                else:
+                    dataset = load_dataset(save_path)
+                
+                st.write(dataset)
+                st.write(dataset['train'][0])
+                st.session_state.config["datasets_path"] = datasets_path
                 saved_yaml_file = f"{save_path}/config.yaml"
-                open(f"{save_path}/{dataset_name}.py",
-                "w").write(code)
                 # st.write(config)
                 with open(saved_yaml_file, "w") as outfile:
                     yaml.dump(st.session_state.config, outfile, default_flow_style=False)
                 if not os.path.isfile(f"{save_path}/README.md"):
                     shutil.copyfile(f"temp.md", f"{save_path}/README.md")
                 
-                if local_dir:
-                    dataset = load_dataset(save_path, data_dir=dataset_link)
-                else:
-                    dataset = load_dataset(save_path)
 
-                st.write(dataset)
-                if 'train' in dataset:
-                    st.write(dataset['train'][0])
-                with st.spinner('Saving ...'):
-                    dataset.save_to_disk(save_path)
+                st.sidebar.write(st.session_state.config)
 
-            hf_path = get_input("HuggingFace path", "hf_path", description="Save data in HuggingFace hub Username/dataset_name")
-            token = create_text_input("HuggingFace token", type="password", description="HuggingFace token hf_**")   
+                include_script = get_input("Include script", "include_script", description="Include the same name for the script in the upload. ")
+                hf_path = get_input("HuggingFace path", "hf_path", description="Save data in HuggingFace hub Username/dataset_name")
+                token = create_text_input("HuggingFace token", type="password", description="HuggingFace token hf_**")   
+                    
+                if token and hf_path:
+                    login(token)
+                    upload = st.button('Upload')
+                    if upload:
+                        with st.spinner('Uploading ...'):
+                            dataset.push_to_hub(f"{hf_path}")
+                            upload_file(f"{save_path}/README.md", repo_id=hf_path)
+                            if include_script:
+                                upload_file(f"{save_path}/{dataset_name}.py", repo_id=hf_path)
+                            else:
+                                upload_file(f"{save_path}/{dataset_name}_.py", repo_id=hf_path)
+                            upload_file(f"{save_path}/config.yaml", repo_id=hf_path)
+                            st.write(f"Uploaded to [{hf_path}](https://huggingface.co/datasets/{hf_path})")
                 
-            if token and hf_path:
-                if local_dir:
-                    dataset = load_dataset(save_path, data_dir=dataset_link)
-                else:
-                    dataset = load_dataset(save_path)
-                login(token)
-                upload = st.button('Upload')
-                if upload:
-                    # st.write(dataset)
-                    # st.write(dataset['train'][0])
-                    with st.spinner('Uploading ...'):
-                        dataset.push_to_hub(f"{hf_path}")
-                        upload_file(f"{save_path}/README.md", repo_id=hf_path)
-                        upload_file(f"{save_path}/{dataset_name}.py", repo_id=hf_path)
-                        upload_file(f"{save_path}/config.yaml", repo_id=hf_path)
-                        st.write(f"Uploaded to [{hf_path}](https://huggingface.co/datasets/{hf_path})")
-
 def second_page():
     st.session_state.page = "second"
     with open('temp.md', 'r') as f:
