@@ -59,7 +59,10 @@ def get_input(input_text,
         result = create_select_box(input_text,valid_csv_sep, key = config_key,
                               index=valid_csv_sep.index(default_value), description=description)
     elif config_key in ["header", "lines"]:
-        result = create_radio(input_text, (True, False), description = description, key = config_key)
+        try:
+            result = create_radio(input_text, (True, False), description = description, key = config_key+'0')
+        except:
+            st.write('failed to create radio ', config_key)
     elif config_key in ["pal", "local_dir"]:
         result = create_radio(input_text, (False, True), key = config_key)
     elif config_key in ["include_script"]:
@@ -106,7 +109,12 @@ def switch_state():
     
     for key in st.session_state.readme_config:
         st.session_state[key] = st.session_state.readme_config[key]
-        
+
+def reload_config(uploaded_file):
+    st.session_state.config = yaml.load(uploaded_file.read())
+    for key in st.session_state.config:
+        st.session_state[key] = st.session_state.config[key]
+
 def main():
     # Register your pages
     pages = {
@@ -144,15 +152,13 @@ def first_page():
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
-    # uploaded_file = st.file_uploader("Load yaml file")
-    # if uploaded_file:
-    #     st.session_state.config = yaml.load(uploaded_file.read())
-    #     st.session_state.load_config = True
+    uploaded_file = st.file_uploader("Load yaml file")
+    if uploaded_file:
+        reload_config(uploaded_file)
 
     dl_manager = DownloadManager()
-
+        
     datasets_path = ""
-
     dataset_name = get_input("Dataset Name", "dataset_name", description = "Dataset Name don\'t add spaces")
     if dataset_name:
         main_class_code = get_class_code(dataset_name)
@@ -344,7 +350,7 @@ def first_page():
                 else:
                     header = None
                 
-                st.session_state.config["header"] = header
+                st.session_state.config["header"] = True if header ==0 else False
 
                 
                 df = get_df(
