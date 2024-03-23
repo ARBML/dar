@@ -1,0 +1,18 @@
+alt_glob: []
+alt_sep: ','
+dataset_link: https://github.com/kinmokusu/oea_algd/blob/master/data/dataset/data.csv
+dataset_name: 'Twifil '
+datasets_path: datasets
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: false
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''

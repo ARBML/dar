@@ -1,0 +1,20 @@
+alt_glob:
+- inputs: comparableWikiCoprus-master/ar-arz/20170120/ar/**.txt
+- targets1: comparableWikiCoprus-master/ar-arz/20170120/arz/**.txt
+alt_sep: ''
+dataset_link: https://github.com/motazsaad/comparableWikiCoprus
+dataset_name: comparable_arabizi
+datasets_path: datasets
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: ar,arz
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''
