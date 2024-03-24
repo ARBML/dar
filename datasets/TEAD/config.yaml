@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: TEAD-master/**.json
+alt_sep: ''
+dataset_link: https://github.com/HSMAabdellaoui/TEAD
+dataset_name: TEAD
+datasets_path: datasets
+file_type: json
+header: null
+hf_path: ''
+json_key: null
+label_column_name: sentiment
+level: -1
+lines: false
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''

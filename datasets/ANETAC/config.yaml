@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: ANETAC-master/EN-AR Translit/**.ar
+  targets1: ANETAC-master/EN-AR Translit/**.en
+alt_sep: ''
+dataset_link: https://github.com/MohamedHadjAmeur/ANETAC
+dataset_name: ANETAC
+datasets_path: datasets
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: Arabic,Transliteration
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''
