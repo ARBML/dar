@@ -5,10 +5,10 @@ datasets_path: ""
 hf_path : ""
 dataset_name : ""
 dataset_link: ""
-alt_glob : []
+alt_glob : {}
 level : null 
 file_type : ""
-lines: False
+lines: True
 json_key : null 
 xml_columns : "" 
 alt_sep : ""
