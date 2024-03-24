@@ -13,7 +13,7 @@ def get_generate_code(type,
                       lines=False,
                       json_key='',
                       level=None,
-                      alt_globs=[]):
+                      alt_globs={}):
 
     type_helper_fns = ""
     if use_labels_from_path:

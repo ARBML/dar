@@ -5,7 +5,7 @@ import os
 def get_split_code(urls,
                    files,
                    zip_base_dir,
-                   alt_globs=[],
+                   alt_globs={},
                    local_dir=False,
                    is_dir=False):
     MAIN_SPLITS = {
@@ -52,9 +52,7 @@ def get_split_code(urls,
                 split_gen = "datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{"
 
                 for alt_glob in alt_globs:
-                    glob_name = list(alt_glob.keys())[0]
-                    glob_struct = alt_glob[glob_name]
-                    glob_struct = f"glob(downloaded_files[0]+'/{glob_struct}')"
+                    glob_struct = f"glob(downloaded_files[0]+'/{alt_glob}')"
                     split_gen += f"'{glob_name}':sorted({glob_struct}),"
                 split_gen += "} })"
                 result.append(split_gen)

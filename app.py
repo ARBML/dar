@@ -103,17 +103,24 @@ if "config" not in st.session_state:
 if "readme_config" not in st.session_state:
     st.session_state.readme_config = {}
 
-def switch_state():
+
+def update_session_config():
     for key in st.session_state.config:
-        st.session_state[key] = st.session_state.config[key]
+        if key == "alt_glob":
+            for comp in st.session_state.config[key]:
+                st.session_state[comp] = st.session_state.config[key][comp]
+        else:
+            st.session_state[key] = st.session_state.config[key]
+
+def switch_state():
+    update_session_config()
     
     for key in st.session_state.readme_config:
         st.session_state[key] = st.session_state.readme_config[key]
 
 def reload_config(uploaded_file):
     st.session_state.config = yaml.load(uploaded_file.read())
-    for key in st.session_state.config:
-        st.session_state[key] = st.session_state.config[key]
+    update_session_config()
 
 def main():
     # Register your pages
@@ -139,7 +146,7 @@ def first_page():
     zipped = False
     label_names = None
     zip_base_dir = ""
-    alt_globs = []
+    alt_globs = {}
     xml_columns = ""
     level = None
     download_data_path = {}
@@ -197,24 +204,26 @@ def first_page():
             
             download_data_path["inputs"] = get_valid_files(zip_base_dir)
             st.write(download_data_path)
-            alt_glob = get_input("Enter an input structure", "alt_glob",
-                                description="Use glob structure like **.txt", glob_idx=0)
-            i = 1
-            while alt_glob:
-                if len(alt_globs) == 0:
-                    download_data_path["inputs"] = eval(f"glob('{zip_base_dir}/{alt_glob}')")
-                    download_data_path["inputs"].sort()
-                    alt_globs.append({"inputs": alt_glob})
+
+            i = 0
+            while True:
+                if i== 0:
+                    config_key = "inputs"
                 else:
-                    download_data_path[f"targets{i}"] = eval(f"glob('{zip_base_dir}/{alt_glob}')")
-                    download_data_path[f"targets{i}"].sort()
-                    alt_globs.append({f"targets{i}": alt_glob})
+                    config_key = f"targets{i}" 
+
+                alt_glob = get_input("Enter an input structure", config_key,
+                                description="Use glob structure like **.txt", glob_idx=0)
+                if alt_glob:
+                    download_data_path[config_key] = eval(f"glob('{zip_base_dir}/{alt_glob}')")
+                    download_data_path[config_key].sort()
+                    alt_globs[config_key] = alt_glob
+                    st.write(alt_globs)
                     i += 1
-                alt_glob = get_input("Enter a target structure",
-                                    "alt_glob", glob_idx=i, key=i, 
-                                    description= "Target files, useful for parallel datasets, like machine translation, speech recognition, etc.")
-            else:
-                st.session_state.config["alt_glob"] = alt_globs
+                else:
+                    st.session_state.config["alt_glob"] = alt_globs
+                    break
+
             pal = get_input("Path as labels ", "pal")
             if pal:
                 level = get_input(
@@ -256,7 +265,7 @@ def first_page():
         file_type = get_input("File Type", "file_type", default_value=default_file_type,
                               description= "Supported files: csv,txt,json,xml,xlsx,wav,jpg")
         # file types paramters
-        lines = False
+        lines = True
         json_key = ""
         columns = []
         best_sep = ","
@@ -274,8 +283,7 @@ def first_page():
             st.write(df.head())
             if file_type in ["json", "txt"]:
                 lines = get_input("Set Lines", "lines", description="Whether to consider new lines or not.")
-                if lines:
-                    st.session_state.config["lines"] = lines
+                st.session_state.config["lines"] = lines
 
             if file_type == "json":
                 json_key = get_input("Json Key", "json_key", description="The json key that contains the data. ")
@@ -396,7 +404,7 @@ def first_page():
                 use_labels_from_path=pal,
                 sep=best_sep if best_sep else ",",
                 header=header,
-                lines=True if lines else False,
+                lines=lines,
                 json_key=json_key if json_key else "",
                 level=level if level else None,
                 alt_globs=alt_globs,
