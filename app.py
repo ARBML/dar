@@ -59,10 +59,7 @@ def get_input(input_text,
         result = create_select_box(input_text,valid_csv_sep, key = config_key,
                               index=valid_csv_sep.index(default_value), description=description)
     elif config_key in ["header", "lines"]:
-        try:
-            result = create_radio(input_text, (True, False), description = description, key = config_key+'0')
-        except:
-            st.write('failed to create radio ', config_key)
+        result = create_radio(input_text, (True, False), description = description, key = config_key)
     elif config_key in ["pal", "local_dir"]:
         result = create_radio(input_text, (False, True), key = config_key)
     elif config_key in ["include_script"]:
@@ -106,11 +103,12 @@ if "readme_config" not in st.session_state:
 
 def update_session_config():
     for key in st.session_state.config:
-        if key == "alt_glob":
+        if key == "alt_glob":   
             for comp in st.session_state.config[key]:
                 st.session_state[comp] = st.session_state.config[key][comp]
         else:
-            st.session_state[key] = st.session_state.config[key]
+            if st.session_state.config[key] is not None:
+                st.session_state[key] = st.session_state.config[key]
 
 def switch_state():
     update_session_config()
@@ -156,6 +154,8 @@ def first_page():
     pal = False
     alt_glob = ""
     default_file_type = ""
+    lines = True
+    json_key = ""
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
@@ -265,26 +265,23 @@ def first_page():
         file_type = get_input("File Type", "file_type", default_value=default_file_type,
                               description= "Supported files: csv,txt,json,xml,xlsx,wav,jpg")
         # file types paramters
-        lines = True
-        json_key = ""
         columns = []
         best_sep = ","
 
         if file_type:
             st.session_state.config["file_type"] = file_type
-
-            df = get_df(
-                file_type,
-                download_data_path,
-                lines=lines,
-                json_key=json_key,
-                columns=xml_columns,
-            )
-            st.write(df.head())
             if file_type in ["json", "txt"]:
                 lines = get_input("Set Lines", "lines", description="Whether to consider new lines or not.")
                 st.session_state.config["lines"] = lines
 
+                df = get_df(
+                        file_type,
+                        download_data_path,
+                        lines=lines,
+                        json_key=json_key,
+                        header=header
+                    )
+                st.write(df.head())
             if file_type == "json":
                 json_key = get_input("Json Key", "json_key", description="The json key that contains the data. ")
                 if json_key:
