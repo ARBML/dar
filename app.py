@@ -448,8 +448,6 @@ def first_page():
                             upload_file(f"{save_path}/README.md", repo_id=hf_path)
                             if include_script:
                                 upload_file(f"{save_path}/{dataset_name}.py", repo_id=hf_path)
-                            else:
-                                upload_file(f"{save_path}/{dataset_name}_.py", repo_id=hf_path)
                             upload_file(f"{save_path}/config.yaml", repo_id=hf_path)
                             st.write(f"Uploaded to [{hf_path}](https://huggingface.co/datasets/{hf_path})")
                 
