@@ -51,8 +51,9 @@ def get_split_code(urls,
             if len(alt_globs) > 0:
                 split_gen = "datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{"
 
-                for alt_glob in alt_globs:
-                    glob_struct = f"glob(downloaded_files[0]+'/{alt_glob}')"
+                for glob_name in alt_globs:
+                    glob_struct = alt_globs[glob_name]
+                    glob_struct = f"glob(downloaded_files[0]+'/{glob_struct}')"
                     split_gen += f"'{glob_name}':sorted({glob_struct}),"
                 split_gen += "} })"
                 result.append(split_gen)
