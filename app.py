@@ -157,6 +157,7 @@ def first_page():
     default_file_type = ""
     lines = True
     json_key = ""
+    encoding = "utf-8"
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
@@ -183,12 +184,11 @@ def first_page():
             st.session_state.config["local_dir"] = local_dir
             username = st.text_input("User name", key = "kaggle_username")
             kaggle_key = st.text_input("Kaggle key", key = "kaggle_key")
-            login = od.authenticate_kaggle(username=username, kaggle_key = kaggle_key)
+            kaggle_login = od.authenticate_kaggle(username=username, kaggle_key = kaggle_key)
             
-            if login:
+            if kaggle_login:
                 st.write('logged in as ', username)
                 dataset_link = od.download(dataset_link, data_dir = "./kaggle/")
-                # st.error(f"Copy the path {data_dir} in the dataset link field",)
             else:
                 st.error(f"Please provide correct credentials",)
                 
@@ -286,6 +286,20 @@ def first_page():
 
         if file_type:
             st.session_state.config["file_type"] = file_type
+            if file_type == "txt":
+                encoding = get_input("Set Encoding", "encoding", description="encoding, default =utf-8")
+                if encoding:
+                    df = get_df(
+                        file_type,
+                        download_data_path,
+                        lines=lines,
+                        json_key=json_key,
+                        header=header,
+                        encoding= encoding
+                    )                
+                    st.session_state.config["encoding"] = encoding
+                    st.write(df.head())
+
             if file_type in ["json", "txt"]:
                 lines = get_input("Set Lines", "lines", description="Whether to consider new lines or not.")
                 st.session_state.config["lines"] = lines
@@ -295,9 +309,11 @@ def first_page():
                         download_data_path,
                         lines=lines,
                         json_key=json_key,
-                        header=header
+                        header=header,
+                        encoding = encoding
                     )
                 st.write(df.head())
+            
             if file_type == "json":
                 json_key = get_input("Json Key", "json_key", description="The json key that contains the data. ")
                 if json_key:
@@ -353,10 +369,23 @@ def first_page():
                     sep=best_sep,
                     lines=lines,
                     json_key=json_key,
-                    header=header
+                    header=header,
+                    encoding = encoding
                 )
                 st.write(df.head())
 
+            df = get_df(
+                    file_type,
+                    download_data_path,
+                    skiprows=skiprows,
+                    sep=best_sep,
+                    lines=lines,
+                    json_key=json_key,
+                    header=header,
+                    encoding = encoding
+                )
+            st.write(df.head())
+            
             columns = list(df.columns)
             columns = [str(c) for c in columns]
             prev_columns = columns
@@ -381,7 +410,8 @@ def first_page():
                         sep=best_sep,
                         lines=lines,
                         json_key=json_key,
-                        header=header
+                        header=header,
+                        encoding = encoding
                     )
                 
 
@@ -421,6 +451,7 @@ def first_page():
                 json_key=json_key if json_key else "",
                 level=level if level else None,
                 alt_globs=alt_globs,
+                encoding=encoding
             )
 
             import_code = get_imports_code(file_type)
@@ -439,6 +470,7 @@ def first_page():
 
                 open(f"{save_path}/{dataset_name}.py", "w").write(code)
                 if local_dir:
+                    st.write(dataset_link)
                     dataset = load_dataset(save_path, data_dir=dataset_link)
                 else:
                     dataset = load_dataset(save_path)

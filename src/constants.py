@@ -24,11 +24,11 @@ xml_code = f'''
 '''
 
 txt_code = f'''
-{TABS_1}def read_txt(self, filepath, skiprows = 0, lines = True):
+{TABS_1}def read_txt(self, filepath, skiprows = 0, lines = True, encoding = 'utf-8'):
 {TABS_2}if lines:
-{TABS_3}return pd.DataFrame(open(filepath, 'r').read().splitlines()[skiprows:])
+{TABS_3}return pd.DataFrame(open(filepath, 'r', encoding = encoding).read().splitlines()[skiprows:])
 {TABS_2}else:
-{TABS_3}return pd.DataFrame([open(filepath, 'r').read()])
+{TABS_3}return pd.DataFrame([open(filepath, 'r', encoding = encoding).read()])
 '''
 
 get_labels_from_path = f'''

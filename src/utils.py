@@ -174,14 +174,14 @@ def read_excel(paths, i, skiprows=0):
     return pd.concat(dfs, axis=1)
 
 
-def read_txt(paths, i, skiprows=0, lines=True):
+def read_txt(paths, i, skiprows=0, lines=True, encoding = "utf-8"):
     dfs = []
     for path_name in paths:
         if lines:
             df = pd.DataFrame(
-                open(paths[path_name][i], "r").read().splitlines()[skiprows:])
+                open(paths[path_name][i], "r", encoding=encoding).read().splitlines()[skiprows:])
         else:
-            df = pd.DataFrame([open(paths[path_name][i], "r").read()])
+            df = pd.DataFrame([open(paths[path_name][i], "r", encoding=encoding).read()])
         dfs.append(df)
     return pd.concat(dfs, axis=1, ignore_index=True)
 
@@ -193,7 +193,8 @@ def get_df(type,
            lines=False,
            json_key="",
            columns=None,
-           header = 0):
+           header = 0,
+           encoding = "utf-8"):
     dfs = []
     for i, _ in enumerate(paths["inputs"]):
         if type == "xlsx":
@@ -212,7 +213,7 @@ def get_df(type,
             df = read_xml(paths, i, columns=columns)
 
         if type == "txt":
-            df = read_txt(paths, i, skiprows=skiprows, lines=lines)
+            df = read_txt(paths, i, skiprows=skiprows, lines=lines, encoding = encoding)
 
         if type == "csv":
             df = read_csv(paths, i, sep=f"{sep}", skiprows=skiprows, header = header)

@@ -13,7 +13,8 @@ def get_generate_code(type,
                       lines=False,
                       json_key='',
                       level=None,
-                      alt_globs={}):
+                      alt_globs={},
+                      encoding = "utf-8"):
 
     type_helper_fns = ""
     if use_labels_from_path:
@@ -42,11 +43,11 @@ def get_generate_code(type,
             pandas_df = TABS_3 + f"df = pd.read_csv(open(filepath, 'rb'), sep = r'{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
 
     elif type == 'txt':
-        pandas_df = TABS_3 + f"df = self.read_txt(filepath, skiprows = {skiprows}, lines = {lines})\n"
+        pandas_df = TABS_3 + f"df = self.read_txt(filepath, skiprows = {skiprows}, lines = {lines}, encoding = '{encoding}')\n"
         if len(alt_globs) > 1:
             pandas_df += TABS_3 + f"dfs = [df] \n"
             for j in range(1, len(alt_globs)):
-                pandas_df += TABS_3 + f"dfs.append(self.read_txt(filepaths['targets{j}'][i], skiprows = {skiprows}, lines = {lines}))\n"
+                pandas_df += TABS_3 + f"dfs.append(self.read_txt(filepaths['targets{j}'][i], skiprows = {skiprows}, lines = {lines}, encoding = '{encoding}'))\n"
             pandas_df += TABS_3 + f"df = pd.concat(dfs, axis = 1)\n"
     elif type == 'jsonl' or type == 'json':
         pandas_df = TABS_3 + f"df = self.read_json(filepath, lines={lines}, json_key='{json_key}')\n"
