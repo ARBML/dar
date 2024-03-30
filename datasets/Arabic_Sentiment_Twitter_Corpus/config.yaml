@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: '**.tsv'
+alt_sep: tab
+dataset_link: ./kaggle/arabic-sentiment-twitter-corpus
+dataset_name: Arabic_Sentiment_Twitter_Corpus
+datasets_path: datasets
+file_type: csv
+header: false
+hf_path: ''
+json_key: null
+label_column_name: sentiment
+level: null
+lines: true
+local_dir: true
+new_columns: sentiment,tweet
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''

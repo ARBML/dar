@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: arabicST.txt
+alt_sep: ''
+dataset_link: ./kaggle/stopword-lists-for-19-languages
+dataset_name: stoplist_19_arabic
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: true
+new_columns: Word
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''

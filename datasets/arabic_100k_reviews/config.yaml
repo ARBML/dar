@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: ar_reviews_100k.tsv
+alt_sep: tab
+dataset_link: ./kaggle/arabic-100k-reviews
+dataset_name: arabic_100k_reviews
+datasets_path: datasets
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: label
+level: null
+lines: true
+local_dir: true
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: text,polarity

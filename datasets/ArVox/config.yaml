@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: ArVox Dataset/**.wav
+alt_sep: ''
+dataset_link: ./kaggle/arpod-corpus-based-on-arabic-podcasts
+dataset_name: ArVox
+datasets_path: datasets
+file_type: wav
+header: null
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: true
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''

@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: '**.csv'
+alt_sep: ','
+dataset_link: ./kaggle/arabic-news-articles-from-aljazeeranet
+dataset_name: news_articles_aljazeera
+datasets_path: datasets
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: guid,published,title,description,link,content,image_url,ref,tags
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''
