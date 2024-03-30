@@ -4,3 +4,4 @@ playground.ipynb
 .vscode/*
 *.lock
 datasets/dummy/*
+kaggle/*

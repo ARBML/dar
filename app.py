@@ -12,6 +12,7 @@ from src.imports_code import get_imports_code
 from src.split_code import get_split_code
 from src.squad_code import get_squad_code
 from urllib.parse import urlparse
+import opendatasets as od
 import shutil
 
 valid_file_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav", "jpg")
@@ -177,7 +178,22 @@ def first_page():
     local_dir = False
 
     if dataset_link:
-        if not is_url(dataset_link):
+        if 'kaggle.com' in dataset_link:
+            local_dir = True
+            st.session_state.config["local_dir"] = local_dir
+            username = st.text_input("User name", key = "kaggle_username")
+            kaggle_key = st.text_input("Kaggle key", key = "kaggle_key")
+            login = od.authenticate_kaggle(username=username, kaggle_key = kaggle_key)
+            
+            if login:
+                st.write('logged in as ', username)
+                dataset_link = od.download(dataset_link, data_dir = "./kaggle/")
+                # st.error(f"Copy the path {data_dir} in the dataset link field",)
+            else:
+                st.error(f"Please provide correct credentials",)
+                
+
+        elif not is_url(dataset_link):
             local_dir = True
             st.session_state.config["local_dir"] = local_dir
 
