@@ -59,6 +59,10 @@ def get_input(input_text,
         default_value = default_value if default_value in valid_csv_sep else ""
         result = create_select_box(input_text,valid_csv_sep, key = config_key,
                               index=valid_csv_sep.index(default_value), description=description)
+    elif config_key in ["encoding"]:
+        valid_text_types = ["utf-8", "latin-1"]
+        result = create_select_box(input_text, valid_text_types, key = config_key,
+                              index=0, description=description)    
     elif config_key in ["header", "lines"]:
         result = create_radio(input_text, (True, False), description = description, key = config_key)
     elif config_key in ["pal", "local_dir"]:
@@ -230,11 +234,11 @@ def first_page():
 
                 alt_glob = get_input("Enter an input structure", config_key,
                                 description="Use glob structure like **.txt", glob_idx=0)
+                st.write({'base dir':zip_base_dir})
                 if alt_glob:
                     download_data_path[config_key] = eval(f"glob('{zip_base_dir}/{alt_glob}')")
                     download_data_path[config_key].sort()
                     alt_globs[config_key] = alt_glob
-                    st.write(alt_globs)
                     i += 1
                 else:
                     st.session_state.config["alt_glob"] = alt_globs
@@ -287,7 +291,7 @@ def first_page():
         if file_type:
             st.session_state.config["file_type"] = file_type
             if file_type == "txt":
-                encoding = get_input("Set Encoding", "encoding", description="encoding, default =utf-8")
+                encoding = get_input("Set Encoding", "encoding", description="Encoding of the text")
                 if encoding:
                     df = get_df(
                         file_type,

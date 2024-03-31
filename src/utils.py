@@ -67,6 +67,15 @@ def convert_link(links):
             sheet_id = link.split("/d/")[-1].split("/")[0]
             url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
             output.append(url)
+        elif "dropbox.com" in link.lower():
+            url = link.lower()
+            if "?dl=1" in url:
+                pass
+            elif "?dl=0" in url:
+                url = url.replace("?dl=0", "?dl=1")
+            else:
+                url = f"{url}?dl=1"
+            output.append(url)
         else:
             output.append(link)
     return output
