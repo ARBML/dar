@@ -245,6 +245,7 @@ def first_page():
                     break
 
             pal = get_input("Path as labels ", "pal")
+            st.session_state.config["pal"] = pal
             if pal:
                 level = get_input(
                     "Label Level",
