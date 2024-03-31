@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: Autotweet-Dataset-v1.0/Autotweet-v1.0-Labeled-Tweets-Text.txt
+alt_sep: tab
+dataset_link: https://www.dropbox.com/s/amnv06boef2vn4k/Autotweet-Dataset-v1.0.zip?dl=0
+dataset_name: AutoTweet
+datasets_path: datasets
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: Label
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''

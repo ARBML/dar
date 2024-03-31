@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: DART/cf-data/**.txt
+alt_sep: tab
+dataset_link: https://www.dropbox.com/s/jslg6fzxeu47flu/DART.zip
+dataset_name: DART
+datasets_path: datasets
+encoding: utf-8
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''
