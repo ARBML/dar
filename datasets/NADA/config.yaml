@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: Text files of NADA dataset/**/**.txt
+alt_sep: ''
+dataset_link: NADA Corpus ConferenceVersion
+dataset_name: NADA
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -2
+lines: false
+local_dir: true
+new_columns: Article
+pal: true
+skiprows: 0
+squad: false
+xml_columns: ''

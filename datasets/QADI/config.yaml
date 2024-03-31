@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: dataset/**.txt
+alt_sep: ''
+dataset_link: QADI_Corpus
+dataset_name: QADI
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: true
+new_columns: tweet_id
+pal: true
+skiprows: 0
+squad: false
+xml_columns: ''

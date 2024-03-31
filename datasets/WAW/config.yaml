@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: aligned_txt/**.ar
+  targets1: aligned_txt/**.en
+alt_sep: ''
+dataset_link: WAW_Corpus
+dataset_name: WAW
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: Arabic,English
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''
