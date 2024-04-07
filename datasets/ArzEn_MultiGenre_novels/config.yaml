@@ -1,0 +1,19 @@
+alt_glob:
+  inputs: '**/Novels/*.xlsx'
+alt_sep: ''
+dataset_link: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/6k97jty9xg-3.zip
+dataset_name: ArzEn_MultiGenre_novels
+datasets_path: datasets
+file_type: xlsx
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+xml_columns: ''
