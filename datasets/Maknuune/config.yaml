@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: maknuune-v1.0.1/maknuune-v1.0.1.tsv
+alt_sep: tab
+dataset_link: https://drive.google.com/uc?id=1prIUi6nw9DHVkvBx0YiVcm6aQYYfqXLy&export=download
+dataset_name: Maknuune
+datasets_path: datasets
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: ID,ROOT,ROOT_NTWS,ROOT_1,LEMMA,LEMMA_SEARCH,FORM,LEMMA_BW,FORM_BW,CAPHI++,ANALYSIS,GLOSS,GLOSS_MSA,EXAMPLE_USAGE,NOTES,SOURCE,ANNOTATOR
+xml_columns: ''
