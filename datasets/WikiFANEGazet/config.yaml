@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: WIKIFANE_gazet.txt
+alt_sep: ','
+dataset_link: WikiFANEGazet/
+dataset_name: WikiFANEGazet
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: Text
+pal: false
+skiprows: 0
+squad: false
+usecols: Text
+xml_columns: PER_Artist

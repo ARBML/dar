@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: Merged_Arabic_Corpus_of_Isolated_Words/**/**.wav
+alt_sep: ''
+dataset_link: ./kaggle/merged-arabic-corpus-of-isolated-words
+dataset_name: Merged_Arabic_Corpus_of_Isolated_Words
+datasets_path: datasets
+file_type: wav
+header: null
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: true
+new_columns: ''
+pal: true
+skiprows: 0
+squad: false
+usecols: audio
+xml_columns: ''

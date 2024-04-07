@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: '**/**.wav'
+alt_sep: ''
+dataset_link: https://www.cs.stir.ac.uk/~lss/arabic/Dataset_30_Sep.zip
+dataset_name: Speech_Corpus_for_Isolated_Words
+datasets_path: datasets
+file_type: wav
+header: null
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: audio
+xml_columns: ''

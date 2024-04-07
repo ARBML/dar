@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: '**weets.txt'
+alt_sep: ','
+dataset_link: ./kaggle/ts-naim-mhedhbi
+dataset_name: Tunisian_Dialect_Corpus
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: true
+new_columns: Tweet
+pal: true
+skiprows: 1
+squad: false
+usecols: Tweet
+xml_columns: ''
