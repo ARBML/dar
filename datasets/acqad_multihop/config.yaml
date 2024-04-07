@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: acqad/acqad_multihop.json
+alt_sep: ''
+dataset_link: ./kaggle/acqad-dataset
+dataset_name: acqad_multihop
+datasets_path: datasets
+file_type: json
+header: null
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: false
+local_dir: true
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: _id,answer,question,decomposition,context
+xml_columns: ''
