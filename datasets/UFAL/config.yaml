@@ -1,0 +1,27 @@
+alt_glob:
+  inputs: ufal-nla-v1.arb
+  targets1: ufal-nla-v1.eng
+  targets2: ufal-nla-v1.apc
+  targets3: ufal-nla-v1.fra
+  targets4: ufal-nla-v1.spa
+  targets5: ufal-nla-v1.ell
+  targets6: ufal-nla-v1.deu
+alt_sep: ''
+dataset_link: ufal
+dataset_name: UFAL
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: arb,eng,apc,fra,spa,ell,deu
+pal: false
+skiprows: 0
+squad: false
+usecols: arb,eng,apc,fra,spa,ell,deu
+xml_columns: ''
