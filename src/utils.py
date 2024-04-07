@@ -22,6 +22,14 @@ def create_select_box(text, options, index = 0, key = None, label_visibility="co
     return st.selectbox(text, options, index = index, key = key,
                         label_visibility = label_visibility)
 
+def create_multi_select_box(text, options, usecols, index = 0, key = None, label_visibility="collapsed", description = ""):
+    st.write(text)
+    st.caption(description)
+    st.write(options)
+    st.write(usecols)
+    st.write(key)
+    return st.multiselect(text, options, usecols, key = key, label_visibility = label_visibility)
+
 def create_radio(text, options, key = None, label_visibility="collapsed", description = ""):
     st.write(text)
     st.caption(description)
@@ -118,7 +126,7 @@ def read_json(paths, i, lines=False, json_key=""):
             data = json.load(open(paths[path_name][i]))
             df = pd.DataFrame(data[json_key])
         else:
-            df = pd.read_json(open(paths[path_name][i]), lines=lines)
+            df = pd.read_json(paths[path_name][i], lines=lines)
         dfs.append(df)
     return pd.concat(dfs, axis=1)
 
@@ -197,13 +205,15 @@ def read_txt(paths, i, skiprows=0, lines=True, encoding = "utf-8"):
 
 def get_df(type,
            paths,
+           new_columns = [],
            skiprows=0,
            sep=",",
            lines=False,
            json_key="",
-           columns=None,
+           xml_columns=None,
            header = 0,
-           encoding = "utf-8"):
+           encoding = "utf-8",
+           usecols = None):
     dfs = []
     for i, _ in enumerate(paths["inputs"]):
         if type == "xlsx":
@@ -219,17 +229,18 @@ def get_df(type,
             df = read_image(paths, i)
 
         if type == "xml":
-            df = read_xml(paths, i, columns=columns)
+            df = read_xml(paths, i, columns=xml_columns)
 
         if type == "txt":
             df = read_txt(paths, i, skiprows=skiprows, lines=lines, encoding = encoding)
 
         if type == "csv":
             df = read_csv(paths, i, sep=f"{sep}", skiprows=skiprows, header = header)
+        if len(new_columns):
+            df.columns = new_columns
 
-        if len(dfs) > 0:
-            df.columns = dfs[-1].columns
-
+        if usecols:
+            df = df[usecols]
         dfs.append(df)
     return pd.concat(dfs, ignore_index=True)
 

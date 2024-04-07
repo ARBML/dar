@@ -74,6 +74,11 @@ def get_input(input_text,
         index = columns.index(default_value) if default_value in columns else 0
         result = create_select_box(input_text, columns, index=index,
                                    description = description, key = config_key)
+    elif config_key == "usecols":
+        columns = list(label_columns)
+        # st.write(columns)
+        result = create_multi_select_box(input_text, columns, columns,
+                                   description = description, key = config_key)
     elif config_key == "skiprows":
         result = create_number_input(input_text, value=0, min_value = 0, description=description)
     elif config_key == "level":
@@ -112,8 +117,10 @@ def update_session_config():
             for comp in st.session_state.config[key]:
                 st.session_state[comp] = st.session_state.config[key][comp]
         else:
-            if st.session_state.config[key] is not None:
+            if st.session_state.config[key] is not None and key not in ['usecols']:
                 st.session_state[key] = st.session_state.config[key]
+            if key == 'usecols':
+                st.session_state[key] = st.session_state.config[key].split(',')
 
 def switch_state():
     update_session_config()
@@ -328,7 +335,7 @@ def first_page():
                         download_data_path,
                         lines=lines,
                         json_key=json_key,
-                        columns=xml_columns,
+                        xml_columns=xml_columns,
                         header=header
                     )
                     st.write(df.head())
@@ -347,7 +354,7 @@ def first_page():
                         download_data_path,
                         lines=lines,
                         json_key=json_key,
-                        columns=xml_columns,
+                        xml_columns=xml_columns,
                         header=header
                     )
                     st.write(df.head())
@@ -358,7 +365,7 @@ def first_page():
                 if alt_sep:
                     st.session_state.config["alt_sep"] = alt_sep
                     best_sep = alt_sep
-                    df = get_df(file_type, download_data_path, 0, sep=best_sep, header=header)
+                    df = get_df(file_type, download_data_path, skiprows=0, sep=best_sep, header=header)
                     st.write(df.head())
 
             skiprows = get_input("Skipped Rows", "skiprows", description="Number of rows to skipp when reading the file.")
@@ -374,8 +381,9 @@ def first_page():
                     sep=best_sep,
                     lines=lines,
                     json_key=json_key,
+                    xml_columns=xml_columns,
                     header=header,
-                    encoding = encoding
+                    encoding=encoding
                 )
                 st.write(df.head())
 
@@ -386,6 +394,7 @@ def first_page():
                     sep=best_sep,
                     lines=lines,
                     json_key=json_key,
+                    xml_columns=xml_columns,
                     header=header,
                     encoding = encoding
                 )
@@ -427,11 +436,38 @@ def first_page():
                 new_columns = new_columns.split(",") if type(new_columns) != list else new_columns
                 st.session_state.config["new_columns"] = ",".join(new_columns)
                 st.write(new_columns)
-
-                if len(new_columns) > 0:
-                    columns = new_columns
-                df.columns = columns
+                df = get_df(
+                        file_type,
+                        download_data_path,
+                        new_columns=new_columns,
+                        skiprows=skiprows,
+                        sep=best_sep,
+                        lines=lines,
+                        json_key=json_key,
+                        xml_columns=xml_columns,
+                        header=header,
+                        encoding = encoding
+                    )
                 st.write(df.head())
+
+            usecols = get_input("Columns to Use","usecols", label_columns= new_columns if len(new_columns) else columns, 
+                                    description="Choose which columns to be used")
+            if usecols:
+                df = get_df(
+                        file_type,
+                        download_data_path,
+                        new_columns = new_columns, 
+                        skiprows=skiprows,
+                        sep=best_sep,
+                        lines=lines,
+                        json_key=json_key,
+                        header=header,
+                        encoding = encoding,
+                        xml_columns=xml_columns,
+                        usecols = usecols,
+                    )
+                st.session_state.config["usecols"] = ",".join(usecols)
+            # st.write(st.session_state)
 
             if not pal:
                 label_column_name = get_input("Label Column Name", "label_column_name", label_columns=df.columns, 
@@ -445,7 +481,7 @@ def first_page():
             generate_code = get_generate_code(
                 file_type,
                 columns,
-                prev_columns,
+                new_columns,
                 label_names,
                 label_column_name,
                 skiprows=skiprows if skiprows else 0,
@@ -456,11 +492,17 @@ def first_page():
                 json_key=json_key if json_key else "",
                 level=level if level else None,
                 alt_globs=alt_globs,
-                encoding=encoding
+                encoding=encoding,
+                usecols = usecols
             )
 
             import_code = get_imports_code(file_type)
-            features_code = get_features_code([c for c in columns if c != label_column_name], label_names)
+            feature_columns = columns
+            if len(new_columns):
+                feature_columns = new_columns
+            if len(usecols):
+                feature_columns = usecols
+            features_code = get_features_code([c for c in feature_columns if c != label_column_name], label_names)
 
             # generate code and load the dataset
             code = import_code + main_class_code + features_code + split_code + generate_code

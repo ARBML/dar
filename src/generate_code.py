@@ -3,7 +3,7 @@ from .constants import *
 
 def get_generate_code(type,
                       columns,
-                      prev_columns,
+                      new_columns,
                       labels,
                       label_column_name,
                       use_labels_from_path=False,
@@ -14,7 +14,8 @@ def get_generate_code(type,
                       json_key='',
                       level=None,
                       alt_globs={},
-                      encoding = "utf-8"):
+                      encoding = "utf-8",
+                      usecols = []):
 
     type_helper_fns = ""
     if use_labels_from_path:
@@ -52,7 +53,7 @@ def get_generate_code(type,
     elif type == 'jsonl' or type == 'json':
         pandas_df = TABS_3 + f"df = self.read_json(filepath, lines={lines}, json_key='{json_key}')\n"
     elif type == 'xml':
-        pandas_df = TABS_3 + f"df = self.read_xml(filepath, {prev_columns})\n"
+        pandas_df = TABS_3 + f"df = self.read_xml(filepath, {columns})\n"
     if type in ['wav', 'mp3']:
         pandas_df = TABS_3 + f"df = self.read_wav(filepath)\n"
         if len(alt_globs) > 1:
@@ -69,7 +70,13 @@ def get_generate_code(type,
             pandas_df += TABS_3 + f"df = pd.concat(dfs, axis = 1)\n"
     pandas_df += TABS_3 + f"if len(df.columns) != {len(columns)}:\n"
     pandas_df += TABS_4 + f"continue\n"
-    pandas_df += TABS_3 + f"df.columns = {columns}\n"
+    if len(new_columns):
+        pandas_df += TABS_3 + f"df.columns = {new_columns}\n"
+        columns = new_columns
+    if len(usecols):
+        pandas_df += TABS_3 + f"df = df[{usecols}]\n"
+        columns = usecols
+
     if use_labels_from_path:
         if level is not None:
             if level != -1:
