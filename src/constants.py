@@ -76,7 +76,7 @@ wav_code = f'''
 jpg_code = f'''
 {TABS_1}def read_image(self, filepath):
 {TABS_2}if filepath.endswith('.jpg') or filepath.endswith('.png'):
-{TABS_3}raw_data = {{'bytes':[filepath]}}
+{TABS_3}raw_data = {{'image':[filepath]}}
 {TABS_2}else:
 {TABS_3}raw_data = {{'text':[open(filepath).read()]}}
 {TABS_2}return pd.DataFrame(raw_data)

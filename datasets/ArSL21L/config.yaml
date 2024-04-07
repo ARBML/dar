@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: sign_data/images/**.jpg
+  targets1: sign_data/labels/**.txt
+alt_sep: ''
+dataset_link: 8hrn3bvdvk-1/data/
+dataset_name: ArSL21L
+datasets_path: datasets
+file_type: jpg
+header: null
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: image,text
+xml_columns: ''
