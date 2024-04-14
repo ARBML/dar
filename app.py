@@ -16,7 +16,7 @@ import opendatasets as od
 import shutil
 
 valid_file_types = ("", "csv", "txt", "json", "xml", "xlsx", "wav", "jpg")
-valid_csv_sep = ("", ",", ";", "|", "tab")
+valid_csv_sep = (" ", ",", ";", "|", "tab")
 
 # https://stackoverflow.com/questions/7160737/how-to-validate-a-url-in-python-malformed-or-not
 def is_url(url):
@@ -298,7 +298,7 @@ def first_page():
 
         if file_type:
             st.session_state.config["file_type"] = file_type
-            if file_type == "txt":
+            if file_type in ["txt", "csv"]:
                 encoding = get_input("Set Encoding", "encoding", description="Encoding of the text")
                 if encoding:
                     df = get_df(
@@ -365,7 +365,7 @@ def first_page():
                 if alt_sep:
                     st.session_state.config["alt_sep"] = alt_sep
                     best_sep = alt_sep
-                    df = get_df(file_type, download_data_path, skiprows=0, sep=best_sep, header=header)
+                    df = get_df(file_type, download_data_path, skiprows=0, sep=best_sep, header=header, encoding = encoding)
                     st.write(df.head())
 
             skiprows = get_input("Skipped Rows", "skiprows", description="Number of rows to skipp when reading the file.")
