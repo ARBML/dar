@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: Arabic-Information-Extraction-Corpus-master/**.xlsx
+alt_sep: ''
+dataset_link: https://github.com/salsama/Arabic-Information-Extraction-Corpus
+dataset_name: ADPBC
+datasets_path: datasets
+file_type: xlsx
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: false
+new_columns: ''
+pal: true
+skiprows: 0
+squad: false
+usecols: Id,Form,Lemma,UPosTag,XPosTag,Feats,Head,DepRel,Deps,Misc
+xml_columns: ''

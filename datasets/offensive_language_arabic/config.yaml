@@ -1,0 +1,19 @@
+alt_glob: {}
+alt_sep: ''
+dataset_link: LabeledDataset.xlsx
+dataset_name: offensive_language_arabic
+datasets_path: datasets
+file_type: xlsx
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: 'Index,IndexVidComments,id,user,date,timestamp,commentText,Unnamed: 7,likes,hasReplies,numberOfReplies,replies.id,replies.user,replies.date,replies.timestamp,replies.commentText,replies.likes,annotator1,annotator2,annotator3,Label'
+xml_columns: ''

@@ -1,0 +1,20 @@
+alt_glob: {}
+alt_sep: ' '
+dataset_link: https://raw.githubusercontent.com/nora-twairesh/AraSenti/master/AraSentiLexiconV1.0
+dataset_name: AraSenti
+datasets_path: datasets
+encoding: latin-1
+file_type: csv
+header: false
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: Word,e1,e2,Score
+pal: false
+skiprows: 69
+squad: false
+usecols: Word,Score
+xml_columns: ''

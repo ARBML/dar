@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: quran-qa-2023-main-21a14601d4599df8e163d26b09cbff79a06628e8/Task-A/data/**.tsv
+alt_sep: ','
+dataset_link: https://gitlab.com/bigirqu/quran-qa-2023
+dataset_name: AyaTec
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: Question
+pal: false
+skiprows: 0
+squad: false
+usecols: Question
+xml_columns: ''
