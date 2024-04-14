@@ -137,7 +137,7 @@ def read_json(paths, i, lines=False, json_key=""):
     return pd.concat(dfs, axis=1)
 
 
-def read_csv(paths, i, sep=",", skiprows=0, header = 0):
+def read_csv(paths, i, sep=",", skiprows=0, header = 0, encoding = "utf-8"):
     dfs = []
     for path_name in paths:
         if sep == "tab":
@@ -146,13 +146,15 @@ def read_csv(paths, i, sep=",", skiprows=0, header = 0):
                              skiprows=skiprows,
                              on_bad_lines='skip',
                              engine='python',
-                             header = header)
+                             header = header,
+                             encoding = encoding)
         else:
             df = pd.read_csv(paths[path_name][i],
                              sep=sep,
                              skiprows=skiprows,
                              on_bad_lines='skip',
-                             header = header)
+                             header = header,
+                             encoding = encoding)
         dfs.append(df)
 
     return pd.concat(dfs, axis=1)
@@ -241,7 +243,7 @@ def get_df(type,
             df = read_txt(paths, i, skiprows=skiprows, lines=lines, encoding = encoding)
 
         if type == "csv":
-            df = read_csv(paths, i, sep=f"{sep}", skiprows=skiprows, header = header)
+            df = read_csv(paths, i, sep=f"{sep}", skiprows=skiprows, header = header, encoding = encoding)
         if len(new_columns):
             df.columns = new_columns
 

@@ -39,9 +39,9 @@ def get_generate_code(type,
         pandas_df = TABS_3 + f"df = pd.read_excel(open(filepath, 'rb'), skiprows = {skiprows}, header = {header})\n"
     elif type in ['csv', 'tsv']:
         if sep == "tab":
-            pandas_df = TABS_3 + f"df = pd.read_csv(filepath, sep = r'\\t', skiprows = {skiprows}, error_bad_lines = False, header = {header}, engine = 'python')\n"
+            pandas_df = TABS_3 + f"df = pd.read_csv(filepath, sep = r'\\t', skiprows = {skiprows}, error_bad_lines = False, header = {header}, engine = 'python', encoding = '{encoding}')\n"
         else:
-            pandas_df = TABS_3 + f"df = pd.read_csv(open(filepath, 'rb'), sep = r'{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header})\n"
+            pandas_df = TABS_3 + f"df = pd.read_csv(open(filepath, 'rb'), sep = r'{sep}', skiprows = {skiprows}, error_bad_lines = False, header = {header}, encoding = '{encoding}')\n"
 
     elif type == 'txt':
         pandas_df = TABS_3 + f"df = self.read_txt(filepath, skiprows = {skiprows}, lines = {lines}, encoding = '{encoding}')\n"
