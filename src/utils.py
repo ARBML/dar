@@ -69,6 +69,7 @@ def convert_link(links):
         elif "gitlab.com" in link.lower():
             user_name = link.split("/")[3]
             repo_name = link.split("/")[4]
+            # consider main as well
             output.append(f"https://gitlab.com/{user_name}/{repo_name}/-/archive/master/master.zip")
         elif "drive.google" in link.lower():
             base = "https://drive.google.com/file/d/"
