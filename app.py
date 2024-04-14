@@ -214,7 +214,7 @@ def first_page():
         file_urls = convert_link(dataset_link)
         default_file_type = file_urls[0].split('.')[-1]
         zipped = any([
-            ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive", "tgz"]
+            ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive", "tgz", ".gz"]
         ])
         st.session_state.config["dataset_link"] = dataset_link
         if zipped or is_dir:

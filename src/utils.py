@@ -9,6 +9,8 @@ from .constants import *
 import json
 from huggingface_hub import HfApi
 import streamlit as st
+import gzip
+import shutil
 
 def create_text_input(text, default_value = "", key = None, label_visibility="collapsed", description = "", type = "default"):
     st.write(text)
@@ -64,6 +66,10 @@ def convert_link(links):
                 output.append(
                     f"https://github.com/{user_name}/{repo_name}/archive/master.zip"
                 )
+        elif "gitlab.com" in link.lower():
+            user_name = link.split("/")[3]
+            repo_name = link.split("/")[4]
+            output.append(f"https://gitlab.com/{user_name}/{repo_name}/-/archive/master/master.zip")
         elif "drive.google" in link.lower():
             base = "https://drive.google.com/file/d/"
             trail = "/view"
@@ -264,9 +270,18 @@ def get_split_user(split_files):
 
 def extract_all(dir):
     zip_files = glob(f"{dir}/**/**.zip", recursive=True)
-    for file in zip_files:
-        with zipfile.ZipFile(file) as item:
-            item.extractall("/".join(file.split("/")[:-1]))
+    if zip_files:
+        for file in zip_files:
+            with zipfile.ZipFile(file) as item:
+                item.extractall("/".join(file.split("/")[:-1]))
+        
+    gzip_files = glob(f"{dir}/**/**.gz", recursive=True)
+    if gzip_files:
+        for gzip_file in gzip_files:
+            with gzip.open(gzip_file, 'rb') as f_in:
+                output_file = gzip_file.replace('.gz', '')
+                with open(output_file, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
 
 
 def get_valid_files(zip_base_dir):
