@@ -1,0 +1,20 @@
+alt_glob: {}
+alt_sep: tab
+dataset_link: https://alt.qcri.org/wp-content/uploads/2020/08/is_speechcorpus.txt
+dataset_name: aljazeera_dialectal_speech
+datasets_path: datasets
+encoding: utf-8
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: Url,Start timestamp,Stop timestamp,Speaker ID,Label,Confidence
+xml_columns: ''

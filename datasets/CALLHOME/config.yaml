@@ -1,0 +1,24 @@
+alt_glob:
+  inputs: ARZ_callhome_corpus-master/corpus/callhome_**.en.0
+  targets1: ARZ_callhome_corpus-master/corpus/callhome_**.en.1
+  targets2: ARZ_callhome_corpus-master/corpus/callhome_**.en.2
+  targets3: ARZ_callhome_corpus-master/corpus/callhome_**.en.3
+alt_sep: tab
+dataset_link: https://github.com/noisychannel/ARZ_callhome_corpus
+dataset_name: CALLHOME
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: false
+new_columns: r1,r2,r3,r4
+pal: false
+skiprows: 0
+squad: false
+usecols: r1,r2,r3,r4
+xml_columns: ''

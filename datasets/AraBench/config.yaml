@@ -1,0 +1,22 @@
+alt_glob:
+  inputs: AraBench_dataset/**.**.**.**.**.ar
+  targets1: AraBench_dataset/**.**.**.**.**.en
+alt_sep: ','
+dataset_link: https://alt.qcri.org/resources/mt/arabench/releases/current/AraBench_dataset.tgz
+dataset_name: AraBench
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: true
+local_dir: false
+new_columns: Arabic,English
+pal: true
+skiprows: 0
+squad: false
+usecols: Arabic,English
+xml_columns: ''
