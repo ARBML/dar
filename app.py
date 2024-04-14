@@ -214,7 +214,7 @@ def first_page():
         file_urls = convert_link(dataset_link)
         default_file_type = file_urls[0].split('.')[-1]
         zipped = any([
-            ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive"]
+            ext in file_urls[0] for ext in ["zip", "rar", "tar.gz", "7z", "drive", "tgz"]
         ])
         st.session_state.config["dataset_link"] = dataset_link
         if zipped or is_dir:
@@ -523,7 +523,12 @@ def first_page():
                     dataset = load_dataset(save_path)
                 
                 st.write(dataset)
-                st.write(dataset['train'][0])
+                if 'train' in dataset:
+                    st.write(dataset['train'][0])
+                elif 'validation' in dataset:
+                    st.write(dataset['validation'][0])
+                else:
+                    st.write(dataset['test'][0])
                 st.session_state.config["datasets_path"] = datasets_path
                 saved_yaml_file = f"{save_path}/config.yaml"
                 # st.write(config)
