@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: train.tsv
+alt_sep: tab
+dataset_link: ./kaggle/nsurl-2019-task8
+dataset_name: nsurl_2019_task8_train
+datasets_path: datasets
+encoding: utf-8
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: true
+local_dir: true
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: question1,question2,label
+xml_columns: ''
