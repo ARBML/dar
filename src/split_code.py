@@ -22,6 +22,8 @@ def get_split_code(urls,
     else:
         body = TABS_2 + f"url = {urls}\n"
         body += TABS_2 + f"downloaded_files = dl_manager.download_and_extract(url)\n"
+    
+    body += TABS_2 + f"self.extract_all(downloaded_files[0])\n"
 
     result = []
     if len(zip_base_dir) > 0:
