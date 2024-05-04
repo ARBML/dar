@@ -1,0 +1,20 @@
+alt_glob: {}
+alt_sep: ','
+dataset_link: https://github.com/123fangyang/ArSen-20/blob/main/data/ArSen-20_publish.csv
+dataset_name: ArSen_20
+datasets_path: datasets
+encoding: utf-8
+file_type: csv
+header: true
+hf_path: ''
+json_key: null
+label_column_name: label
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: tweet id,label,author id,created_at,lang,like_count,quote_count,reply_count,retweet_count,tweet,user_verified,followers_count,following_count,tweet_count,listed_count,name,username,user_created_at,description
+xml_columns: ''

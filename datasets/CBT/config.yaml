@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: Arabic Punctuation Dataset/CBT/**/**.txt
+alt_sep: ''
+dataset_link: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/2pkxckwgs3-1.zip
+dataset_name: CBT
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: false
+local_dir: false
+new_columns: Document
+pal: false
+skiprows: 0
+squad: false
+usecols: Document
+xml_columns: ''

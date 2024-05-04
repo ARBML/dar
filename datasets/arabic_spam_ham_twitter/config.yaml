@@ -1,0 +1,22 @@
+alt_glob:
+  inputs: Dataset of Arabic Spam and Ham Tweets/Dataset of Arabic Spam and Ham Tweets.xlsx
+alt_sep: ''
+dataset_link: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/86x733xkb8-2.zip
+dataset_name: arabic_spam_ham_twitter
+datasets_path: datasets
+file_type: xlsx
+header: true
+hf_path: ''
+json_key: null
+label_column_name: Label
+level: null
+lines: true
+local_dir: false
+new_columns: ''
+pal: false
+skiprows: 0
+squad: false
+usecols: Date,Time,Date Time,URL,Tweet Text,Cleaned Text,User Name,Location,Replied
+  Tweet ID ,Replied Tweet User ID,Replied Tweet User name,Coordinates,Retweet Count,Favorite
+  Count,Favorited,Label
+xml_columns: ''
