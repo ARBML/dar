@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: '**/**.txt'
+alt_sep: ''
+dataset_link: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/57zpx667y9-2.zip
+dataset_name: SANAD
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -2
+lines: false
+local_dir: false
+new_columns: Article
+pal: true
+skiprows: 0
+squad: false
+usecols: Article
+xml_columns: ''

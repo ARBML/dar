@@ -6,7 +6,7 @@ import zipfile
 
 class SANAD(datasets.GeneratorBasedBuilder):
 	def _info(self):
-		return datasets.DatasetInfo(features=datasets.Features({'Text':datasets.Value('string'),'label': datasets.features.ClassLabel(names=['Tech', 'Culture', 'Finance', 'Sports', 'Politics', 'Religion', 'Medical'])}))
+		return datasets.DatasetInfo(features=datasets.Features({'Article':datasets.Value('string'),'label': datasets.features.ClassLabel(names=['Tech', 'Finance', 'Politics', 'Religion', 'Medical', 'Culture', 'Sports'])}))
 
 	def extract_all(self, dir):
 		zip_files = glob(dir+'/**/**.zip', recursive=True)
@@ -17,7 +17,7 @@ class SANAD(datasets.GeneratorBasedBuilder):
 
 	def get_all_files(self, dir):
 		files = []
-		valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'arff'] 
+		valid_file_ext = ['txt', 'csv', 'tsv', 'xlsx', 'xls', 'xml', 'json', 'jsonl', 'html', 'wav', 'mp3', 'jpg', 'png']
 		for ext in valid_file_ext:
 			files += glob(f"{dir}/**/**.{ext}", recursive = True)
 		return files
@@ -26,26 +26,30 @@ class SANAD(datasets.GeneratorBasedBuilder):
 		url = ['https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/57zpx667y9-2.zip']
 		downloaded_files = dl_manager.download_and_extract(url)
 		self.extract_all(downloaded_files[0])
-		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': glob(downloaded_files[0]+'/**/**.txt')})]
+		return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{'inputs':sorted(glob(downloaded_files[0]+'/**/**.txt')),} })]
 
 
-	def get_label_from_path(self, labels, path):
-		for label in labels:
-			if label in path:
+	def get_label_from_path(self, labels, label):
+		for l in labels:
+			if l == label:
 				return label
 
-	def read_txt(self, filepath, skiprows = 0):
-		lines = open(filepath, 'r').read().splitlines()[skiprows:]
-		return pd.DataFrame(lines)
+	def read_txt(self, filepath, skiprows = 0, lines = True, encoding = 'utf-8'):
+		if lines:
+			return pd.DataFrame(open(filepath, 'r', encoding = encoding).read().splitlines()[skiprows:])
+		else:
+			return pd.DataFrame([open(filepath, 'r', encoding = encoding).read()])
+
 	def _generate_examples(self, filepaths):
 		_id = 0
-		for i,filepath in enumerate(filepaths):
-			df = self.read_txt(filepath, skiprows = 0)
+		for i,filepath in enumerate(filepaths['inputs']):
+			df = self.read_txt(filepath, skiprows = 0, lines = False, encoding = 'utf-8')
 			if len(df.columns) != 1:
 				continue
-			df.columns = ['Text']
-			label = self.get_label_from_path(['Tech', 'Culture', 'Finance', 'Sports', 'Politics', 'Religion', 'Medical'], filepath)
+			df.columns = ['Article']
+			df = df[['Article']]
+			label = self.get_label_from_path(['Tech', 'Finance', 'Politics', 'Religion', 'Medical', 'Culture', 'Sports'], filepath.split('/')[-2])
 			for _, record in df.iterrows():
-				yield str(_id), {'Text':record['Text'],'label':str(label)}
+				yield str(_id), {'Article':record['Article'],'label':str(label)}
 				_id += 1 
 
