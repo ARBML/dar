@@ -205,9 +205,9 @@ def read_txt(paths, i, skiprows=0, lines=True, encoding = "utf-8"):
     for path_name in paths:
         if lines:
             df = pd.DataFrame(
-                open(paths[path_name][i], "r", encoding=encoding).read().splitlines()[skiprows:])
+                open(paths[path_name][i], "r", encoding=encoding, errors = 'backslashreplace').read().splitlines()[skiprows:])
         else:
-            df = pd.DataFrame([open(paths[path_name][i], "r", encoding=encoding).read()])
+            df = pd.DataFrame([open(paths[path_name][i], "r", encoding=encoding, errors = 'backslashreplace').read()])
         dfs.append(df)
     return pd.concat(dfs, axis=1, ignore_index=True)
 
