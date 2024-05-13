@@ -251,7 +251,9 @@ def get_df(type,
         if usecols:
             df = df[usecols]
         dfs.append(df)
-    return pd.concat(dfs, ignore_index=True)
+    df = pd.concat(dfs, ignore_index=True)
+    assert len(df.columns) == len(dfs[0].columns) # make sure all files have the same column nums, there is an issue when we have unnamed csvs
+    return df
 
 
 def get_split_user(split_files):
