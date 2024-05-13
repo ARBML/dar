@@ -1,0 +1,23 @@
+alt_glob:
+  inputs: OsmanReadability-master/Osman_UN_Corpus/parallel_documents/AR_docs/**.txt
+  targets1: OsmanReadability-master/Osman_UN_Corpus/parallel_documents/EN_docs/**.txt
+  targets2: OsmanReadability-master/Osman_UN_Corpus/parallel_documents/ART_docs/**.txt
+alt_sep: ''
+dataset_link: https://github.com/drelhaj/OsmanReadability
+dataset_name: osman_readability
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: false
+local_dir: false
+new_columns: Arabic,English,Diacritized
+pal: false
+skiprows: 0
+squad: false
+usecols: Arabic,English,Diacritized
+xml_columns: ''
