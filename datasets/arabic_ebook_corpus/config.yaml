@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: '*.txt'
+alt_sep: ''
+dataset_link: 2024-145-1/data/corpus-txt
+dataset_name: arabic_ebook_corpus
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: null
+lines: false
+local_dir: true
+new_columns: text
+pal: false
+skiprows: 0
+squad: false
+usecols: text
+xml_columns: ''
