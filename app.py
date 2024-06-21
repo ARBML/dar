@@ -129,7 +129,7 @@ def switch_state():
         st.session_state[key] = st.session_state.readme_config[key]
 
 def reload_config(uploaded_file):
-    st.session_state.config = yaml.load(uploaded_file.read())
+    st.session_state.config = yaml.load(uploaded_file.read(), Loader=yaml.Loader)
     update_session_config()
 
 def main():
@@ -172,13 +172,18 @@ def first_page():
 
     insert_image('logo.png', caption='dar: build datasets by answering questions')
 
+    if "uploaded_file" not in st.session_state:
+        st.session_state.uploaded_file = False
+
     uploaded_file = st.file_uploader("Load yaml file")
-    if uploaded_file:
-        reload_config(uploaded_file)
+
+    if not st.session_state.uploaded_file:
+        if uploaded_file:
+            reload_config(uploaded_file)
+            st.session_state.uploaded_file = True
 
     dl_manager = DownloadManager()
         
-    datasets_path = ""
     dataset_name = get_input("Dataset Name", "dataset_name", description = "Dataset Name don\'t add spaces")
     if dataset_name:
         main_class_code = get_class_code(dataset_name)
@@ -516,11 +521,17 @@ def first_page():
 
 
                 open(f"{save_path}/{dataset_name}.py", "w").write(code)
+                redownload = st.checkbox("Force re-download")
+
+                if redownload:
+                    download_mode = "force_redownload"
+                else:
+                    download_mode = "reuse_dataset_if_exists"
                 if local_dir:
                     st.write(dataset_link)
-                    dataset = load_dataset(save_path, data_dir=dataset_link)
+                    dataset = load_dataset(save_path, data_dir=dataset_link, download_mode="force_redownload", ignore_verifications=True)
                 else:
-                    dataset = load_dataset(save_path)
+                    dataset = load_dataset(save_path, download_mode="force_redownload",ignore_verifications=True)
                 
                 st.write(dataset)
                 if 'train' in dataset:
