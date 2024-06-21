@@ -1,0 +1,20 @@
+alt_glob:
+  inputs: Hijja2-master/**/**/**.png
+alt_sep: ''
+dataset_link: https://github.com/israksu/Hijja2
+dataset_name: Hijja2
+datasets_path: datasets
+file_type: jpg
+header: null
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -3
+lines: true
+local_dir: false
+new_columns: ''
+pal: true
+skiprows: 0
+squad: false
+usecols: image
+xml_columns: ''
