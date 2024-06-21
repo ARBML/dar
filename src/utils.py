@@ -277,8 +277,11 @@ def extract_all(dir):
     zip_files = glob(f"{dir}/**/**.zip", recursive=True)
     if zip_files:
         for file in zip_files:
-            with zipfile.ZipFile(file) as item:
-                item.extractall("/".join(file.split("/")[:-1]))
+            try:
+                with zipfile.ZipFile(file) as item:
+                    item.extractall("/".join(file.split("/")[:-1]))
+            except:
+                continue
         
     gzip_files = glob(f"{dir}/**/**.gz", recursive=True)
     if gzip_files:
