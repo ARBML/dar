@@ -1,0 +1,21 @@
+alt_glob:
+  inputs: Munazarat1.0-main/Munazarat 1.0 TXT x73/**.txt
+alt_sep: ''
+dataset_link: https://github.com/moh72y/Munazarat1.0
+dataset_name: Munazarat
+datasets_path: datasets
+encoding: utf-8
+file_type: txt
+header: true
+hf_path: ''
+json_key: null
+label_column_name: ''
+level: -1
+lines: false
+local_dir: false
+new_columns: Debate
+pal: false
+skiprows: 0
+squad: false
+usecols: Debate
+xml_columns: ''
